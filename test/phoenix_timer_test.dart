@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:test/test.dart';
 
-import 'package:phoenix_wings/timer.dart';
+import 'package:phoenix_wings/phoenix_timer.dart';
 
 void main() {
   test("Can schedule a timer", () async {
