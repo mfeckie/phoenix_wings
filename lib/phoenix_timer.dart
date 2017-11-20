@@ -1,28 +1,27 @@
 import 'dart:async';
 
 class PhoenixTimer {
-  final Function _callback;
+  void Function() _callback;
   Timer timer;
-  List<int> reconnectAfterMs;
+  List<int> reconnectAfterMs = const [1000, 2000, 5000, 10000];
   var tries = 0;
 
-  PhoenixTimer(this._callback, [this.reconnectAfterMs = const [1000, 2000, 5000, 10000]]);
-
+  PhoenixTimer(this._callback);
 
   void scheduleTimeout() {
      clearTimeout();
-     this.timer = new Timer(timeoutDuration(), this._performTask);
+     timer = new Timer(timeoutDuration(), _performTask);
   }
 
   void _performTask() {
-    this._callback();
-    this.scheduleTimeout();
+    _callback();
+    scheduleTimeout();
   }
 
   Duration timeoutDuration() {
-    final reconnectLength = this.reconnectAfterMs.length - 1;
-    this.tries++;
-    final index = this.tries > reconnectLength ? reconnectLength : this.tries;
+    final reconnectLength = reconnectAfterMs.length - 1;
+    tries++;
+    final index = tries > reconnectLength ? reconnectLength : tries;
     return new Duration(milliseconds: reconnectAfterMs[index]);
   }
 
@@ -31,7 +30,8 @@ class PhoenixTimer {
   }
 
   void reset() {
-    this.tries = 0;
+    tries = 0;
+    clearTimeout();
   }
 
 }

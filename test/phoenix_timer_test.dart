@@ -8,7 +8,8 @@ void main() {
   test("Can schedule a timer", () async {
     var called = false;
     var callback = () => called = true;
-    final timer = new PhoenixTimer(callback, [1]);
+    final timer = new PhoenixTimer(callback);
+    timer.reconnectAfterMs = [1];
     expect(timer.timer, null);
     expect(timer.tries, 0);
     timer.scheduleTimeout();
@@ -21,7 +22,8 @@ void main() {
   test("Can clear a timer", () async {
     var called = false;
     var callback = () => called = true;
-    final timer = new PhoenixTimer(callback, [10]);
+    final timer = new PhoenixTimer(callback);
+    timer.reconnectAfterMs = [10];
     timer.scheduleTimeout();
 
     timer.clearTimeout();
@@ -31,7 +33,8 @@ void main() {
 
   test("Can reset a timer", () async {
     var callback = () {};
-    final timer = new PhoenixTimer(callback, [1]);
+    final timer = new PhoenixTimer(callback);
+    timer.reconnectAfterMs = [1];
     timer.scheduleTimeout();
     await new Future<Null>.delayed(new Duration(milliseconds: 5));
     expect(timer.tries > 2, true);
@@ -41,7 +44,8 @@ void main() {
 
   test("Incrementally backsoff", () async {
     var callback = () { };
-    final timer = new PhoenixTimer(callback, [1, 50, 2000]);
+    final timer = new PhoenixTimer(callback);
+    timer.reconnectAfterMs = [1, 50, 2000];
     timer.scheduleTimeout();
     await new Future<Null>.delayed(new Duration(milliseconds: 60));
     expect(timer.tries, 2);
