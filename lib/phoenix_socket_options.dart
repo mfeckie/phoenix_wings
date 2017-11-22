@@ -5,8 +5,4 @@ class PhoenixSocketOptions {
   List<int> reconnectAfterMs;
   Function logger = () {};
   Map<String, String> params;
-
-  PhoenixSocketOptions({params: Map}) {
-    this.params = params;
-  }
 }
