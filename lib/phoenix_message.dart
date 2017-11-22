@@ -14,4 +14,11 @@ class PhoenixMessage {
   String toJSON() {
     return JSON.encode([joinRef, ref, topic, event, payload]);
   }
+
+  PhoenixMessage.heartbeat(String pendingHeartbeatRef) {
+    ref = pendingHeartbeatRef;
+    payload = {};
+    event = "heartbeat";
+    topic = "phoenix";
+  }
 }

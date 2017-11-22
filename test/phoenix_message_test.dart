@@ -17,4 +17,10 @@ void main() {
     expect(decoded.event, "event");
     expect(decoded.payload, {"payload": ""});
   });
+
+  test("Can build a heartbeat message", () {
+    final heartbeatMsg = new PhoenixMessage.heartbeat("pendingHeartbeatRef");
+    final json = heartbeatMsg.toJSON();
+    expect(json, '[null,"pendingHeartbeatRef","phoenix","heartbeat",{}]');
+  });
 }
