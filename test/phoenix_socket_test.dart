@@ -26,7 +26,7 @@ class MockServer {
           if (message.event == 'heartbeat') {
             heartbeat++;
             final json = JSON.encode([null,"${message.ref}","phoenix","phx_reply",{"status":"ok","response":{}}]);
-            _socket.add(json);
+              _socket.add(json);
           }
         }, onError: (msg) {});
       }
@@ -97,11 +97,12 @@ void main() {
 
   test("Sends heartbeat", () async {
     final options = new PhoenixSocketOptions();
-    options.heartbeatIntervalMs = 9;
+    options.heartbeatIntervalMs = 5;
     final socket = new PhoenixSocket("ws://localhost:4000/socket/websocket", socketOptions: options);
     await socket.connect();
 
-    await new Future<Null>.delayed(new Duration(milliseconds: 15));
+    await new Future<Null>.delayed(new Duration(milliseconds: 12));
+    socket.stopHeartbeat();
     expect(server.heartbeat, greaterThan(0));
   });
 

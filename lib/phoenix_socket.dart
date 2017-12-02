@@ -27,7 +27,7 @@ class PhoenixSocket {
   PhoenixSocket(String endpoint, {socketOptions: PhoenixSocketOptions}) {
     if (socketOptions is PhoenixSocketOptions) {
       _options = socketOptions;
-    } 
+    }
     buildEndpoint(endpoint);
   }
 
@@ -65,21 +65,27 @@ class PhoenixSocket {
 
   onError(Function() callback) => _stateChangeCallbacks.error.add(callback);
 
-  onMessage(Function(PhoenixMessage) callback) => _stateChangeCallbacks.message.add(callback);
+  onMessage(Function(PhoenixMessage) callback) =>
+      _stateChangeCallbacks.message.add(callback);
 
   onConnOpened() async {
-    _heartbeatTimer = new Timer.periodic(new Duration(milliseconds: _options.heartbeatIntervalMs), sendHeartbeat);
+    _heartbeatTimer = new Timer.periodic(
+        new Duration(milliseconds: _options.heartbeatIntervalMs),
+        sendHeartbeat);
     _stateChangeCallbacks.open.forEach((cb) => cb());
   }
+
   onConnClosed() async => _stateChangeCallbacks.close.forEach((cb) => cb());
   onErrorOccur() async => _stateChangeCallbacks.error.forEach((cb) => cb());
 
   onReceive(String rawJSON) {
     final message = this._decode(rawJSON);
     print(rawJSON);
-    if (message.ref == _pendingHeartbeatRef) { _pendingHeartbeatRef = null; }
-      // this.channels.filter( channel => channel.isMember(topic, event, payload, join_ref) )
-      //              .forEach( channel => channel.trigger(event, payload, ref, join_ref) )
+    if (message.ref == _pendingHeartbeatRef) {
+      _pendingHeartbeatRef = null;
+    }
+    // this.channels.filter( channel => channel.isMember(topic, event, payload, join_ref) )
+    //              .forEach( channel => channel.trigger(event, payload, ref, join_ref) )
     _stateChangeCallbacks.message.forEach((callback) => callback(message));
   }
 
@@ -101,8 +107,14 @@ class PhoenixSocket {
     }
   }
 
+  void stopHeartbeat() {
+    _heartbeatTimer?.cancel();
+  }
+
   void sendHeartbeat(Timer timer) {
-    if (conn?.readyState != WebSocket.OPEN) { return; }
+    if (conn?.readyState != WebSocket.OPEN) {
+      return;
+    }
     if (_pendingHeartbeatRef != null) {
       _pendingHeartbeatRef = null;
       conn.close(WebSocketStatus.NORMAL_CLOSURE, "Heartbeat timeout");
@@ -110,7 +122,6 @@ class PhoenixSocket {
     }
     _pendingHeartbeatRef = makeRef();
 
-    
     push(new PhoenixMessage.heartbeat(_pendingHeartbeatRef));
   }
 
@@ -119,6 +130,7 @@ class PhoenixSocket {
       final encoded = this._encode(msg);
       conn.add(encoded);
     };
+
     if (isConnected) {
       callback();
     } else {
@@ -128,7 +140,11 @@ class PhoenixSocket {
 
   String makeRef() {
     final newRef = _ref + 1;
-    if (newRef == _ref) { _ref = 0; } else { _ref = newRef; }
+    if (newRef == _ref) {
+      _ref = 0;
+    } else {
+      _ref = newRef;
+    }
     return "$_ref";
   }
 }
