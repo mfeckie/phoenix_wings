@@ -51,6 +51,7 @@ class MockServer {
   }
 
   sendMessage(msg) {
+    if (_socket.readyState != WebSocket.OPEN) { return; }
     _socket.add(msg);
   }
 
@@ -59,8 +60,7 @@ class MockServer {
   }
 
   shutdown() async {
-    await _socket?.close();
-    await _server.close(force: true);
+    await _server.close();
     _server = null;
   }
 }

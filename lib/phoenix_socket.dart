@@ -88,7 +88,10 @@ class PhoenixSocket {
     _stateChangeCallbacks.open.forEach((cb) => cb());
   }
 
-  onConnClosed() async => _stateChangeCallbacks.close.forEach((cb) => cb());
+  onConnClosed() async {
+    _heartbeatTimer?.cancel();
+    _stateChangeCallbacks.close.forEach((cb) => cb());
+  }
   onErrorOccur() async => _stateChangeCallbacks.error.forEach((cb) => cb());
 
   onReceive(String rawJSON) {
@@ -113,8 +116,9 @@ class PhoenixSocket {
   }
 
   disconnect({int code}) async {
+    _heartbeatTimer?.cancel();
     if (code != null) {
-      await this.conn.close(code);
+      return await this.conn.close(code);
     }
     await this.conn.close();
   }
@@ -127,6 +131,7 @@ class PhoenixSocket {
     if (conn?.readyState != WebSocket.OPEN) {
       return;
     }
+    
     if (_pendingHeartbeatRef != null) {
       _pendingHeartbeatRef = null;
       conn.close(WebSocketStatus.NORMAL_CLOSURE, "Heartbeat timeout");
