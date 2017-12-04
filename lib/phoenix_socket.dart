@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
 import 'package:phoenix_wings/phoenix_serializer.dart';
 import 'package:phoenix_wings/phoenix_socket_options.dart';
@@ -11,13 +12,14 @@ class PhoenixSocket {
   StateChangeCallbacks _stateChangeCallbacks = new StateChangeCallbacks();
 
   List<int> reconnectAfterMs = const [1000, 2000, 5000, 10000];
-  int _ref = 0;
+  int ref = 0;
   var _encode = PhoenixSerializer.encode;
   var _decode = PhoenixSerializer.decode;
   Timer _heartbeatTimer;
   String _pendingHeartbeatRef;
   PhoenixTimer _reconnectTimer;
-  List<Function> _sendBuffer;
+  List<Function> _sendBuffer = [];
+  List<PhoenixChannel> channels = [];
   WebSocket conn;
 
   // Optionals
@@ -44,6 +46,17 @@ class PhoenixSocket {
 
   get endpoint => _endpoint;
   get isConnected => conn?.readyState == WebSocket.OPEN;
+  get sendBufferLength => _sendBuffer.length;
+
+  PhoenixChannel channel(String topic, [Map params = const {}]) {
+    final channel = new PhoenixChannel(topic, params, this);
+    channels.add(channel);
+    return channel;
+  }
+
+  remove(PhoenixChannel channelToRemove) {
+    channels.removeWhere((channel) => channel.joinRef() == channelToRemove.joinRef());
+  }
 
   connect() async {
     if (conn != null) {
@@ -80,7 +93,6 @@ class PhoenixSocket {
 
   onReceive(String rawJSON) {
     final message = this._decode(rawJSON);
-    print(rawJSON);
     if (message.ref == _pendingHeartbeatRef) {
       _pendingHeartbeatRef = null;
     }
@@ -91,7 +103,6 @@ class PhoenixSocket {
 
   onConnectionError(error) {
     onErrorOccur();
-    print(error);
   }
 
   reconnect() async {
@@ -101,10 +112,11 @@ class PhoenixSocket {
     await this.connect();
   }
 
-  disconnect({code: int}) {
+  disconnect({int code}) async {
     if (code != null) {
-      this.conn.close(code);
+      await this.conn.close(code);
     }
+    await this.conn.close();
   }
 
   void stopHeartbeat() {
@@ -139,13 +151,8 @@ class PhoenixSocket {
   }
 
   String makeRef() {
-    final newRef = _ref + 1;
-    if (newRef == _ref) {
-      _ref = 0;
-    } else {
-      _ref = newRef;
-    }
-    return "$_ref";
+    ref++;
+    return "$ref";
   }
 }
 
