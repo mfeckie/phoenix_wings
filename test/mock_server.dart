@@ -8,6 +8,7 @@ class MockServer {
   WebSocket _socket;
   var heartbeat = 0;
   int port;
+  var heartbeatMessageReceived;
 
   MockServer(this.port);
 
@@ -34,6 +35,7 @@ class MockServer {
   }
 
   handleHeartbeat(message) {
+    heartbeatMessageReceived = message;
     heartbeat++;
     final json = JSON.encode([
       null,

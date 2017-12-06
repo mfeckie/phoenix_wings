@@ -86,6 +86,25 @@ void main() {
 
     });
 
+   test("pushes heartbeat data when connected", () async {
+     final options = new PhoenixSocketOptions();
+     options.heartbeatIntervalMs = 5;
+     final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
+         socketOptions: options);
+     await socket.connect();
+     await new Future<Null>.delayed(new Duration(milliseconds: 15));
+     socket.stopHeartbeat();
+
+     final hearbeatMessage = server.heartbeatMessageReceived;
+
+     expect(hearbeatMessage.topic, 'phoenix');
+     expect(hearbeatMessage.event, 'heartbeat');
+  });
+
+  test('Does not send heartbeat when not connected', () {
+    
+  });
+
     // TODO - sendHeartbeat
   });
   group("push", () {
