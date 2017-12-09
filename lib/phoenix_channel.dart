@@ -21,7 +21,8 @@ class PhoenixChannel {
   String topic;
   Map params;
   PhoenixSocket socket;
-  List _bindings, _pushBuffer;
+  List<PhoenixChannelBinding> _bindings;
+  List _pushBuffer;
   int _bindingRef = 0;
   int _timeout;
   var _joinedOnce = false;
@@ -37,7 +38,25 @@ class PhoenixChannel {
     });
   }
 
-  joinRef(){ return this.joinPush.ref; }
+  String joinRef(){ return this.joinPush.ref; }
+
+  trigger(String event, String payload, String ref, [String joinRefParam]) {
+    final handledPayload = this.onMessage(event, payload, ref);
+    if (payload != null && handledPayload == null) {
+      throw("channel onMessage callback must return payload modified or unmodified");
+    }
+
+    _bindings.where((bound) => bound.event == event)
+    .map((bound) => bound.callback(handledPayload, ref, joinRefParam ?? joinRef()));
+  }
+
+  onMessage(event, payload, ref){ return payload; }
 
 
+}
+
+class PhoenixChannelBinding {
+  String event, ref;
+  Function(String, String, String) callback;
+  PhoenixChannelBinding(this.event, this.ref, this.callback);
 }
