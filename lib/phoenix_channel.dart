@@ -40,7 +40,7 @@ class PhoenixChannel {
 
   String joinRef(){ return this.joinPush.ref; }
 
-  trigger(String event, String payload, String ref, [String joinRefParam]) {
+  trigger(String event, [String payload, String ref, String joinRefParam]) {
     final handledPayload = this.onMessage(event, payload, ref);
     if (payload != null && handledPayload == null) {
       throw("channel onMessage callback must return payload modified or unmodified");
