@@ -94,7 +94,10 @@ class PhoenixSocket {
     triggerChannelErrors();
     _stateChangeCallbacks.close.forEach((cb) => cb(message));
   }
-  onConnectionError(error) async => _stateChangeCallbacks.error.forEach((cb) => cb(error));
+  onConnectionError(error) async {
+    triggerChannelErrors();
+    _stateChangeCallbacks.error.forEach((cb) => cb(error));
+  }
 
   onReceive(String rawJSON) {
     final message = this._decode(rawJSON);

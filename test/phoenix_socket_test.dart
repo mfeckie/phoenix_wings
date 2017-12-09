@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 // import 'dart:io';
 
+import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
 import 'package:phoenix_wings/phoenix_socket_options.dart';
 import 'package:test/test.dart';
@@ -56,6 +57,16 @@ void main() {
 
       await new Future<Null>.delayed(new Duration(milliseconds: 10));
 
+      expect(callbackCalled, true);
+    });
+
+    test("Triggers channel errors", () async {
+      final channel = socket.channel("topic");
+      var callbackCalled = false;
+      channel.onError((a, b, c) { callbackCalled = true; });
+      socket.onConnectionError(PhoenixChannelEvents.error);
+      
+      await new Future<Null>.delayed(new Duration(milliseconds: 100));
       expect(callbackCalled, true);
     });
   });
