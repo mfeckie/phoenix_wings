@@ -47,7 +47,7 @@ void main() {
 
     test("Triggers callbacks on close", () async {
       var callbackCalled = false;
-      socket.onClose(() {
+      socket.onClose((_) {
         callbackCalled = true;
       });
 
@@ -76,7 +76,7 @@ void main() {
     test("closes socket when heartbeat not ack'd within heartbeat window", () async {
       var closed = false;
       await socket.connect();
-      socket.onClose(() { closed = true; });
+      socket.onClose((_) { closed = true; });
       final timeout = new Duration(milliseconds: 50);
       socket.sendHeartbeat(new Timer(timeout, () {}));
       expect(closed, false);
@@ -99,10 +99,6 @@ void main() {
 
      expect(hearbeatMessage.topic, 'phoenix');
      expect(hearbeatMessage.event, 'heartbeat');
-  });
-
-  test('Does not send heartbeat when not connected', () {
-    
   });
 
     // TODO - sendHeartbeat
@@ -134,6 +130,16 @@ void main() {
       msg.ref = "afterClose";
       socket.push(msg);
       expect(socket.sendBufferLength, 1);
+    });
+
+    test("flushes send buffer on connect", () async {
+      socket.push(msg);
+      socket.push(msg);
+      expect(socket.sendBufferLength, 2);
+      await socket.connect();
+
+      await new Future<Null>.delayed(new Duration(milliseconds: 50));
+      expect(socket.sendBufferLength, 0);
     });
   });
 

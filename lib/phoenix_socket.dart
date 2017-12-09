@@ -18,7 +18,7 @@ class PhoenixSocket {
   Timer _heartbeatTimer;
   String _pendingHeartbeatRef;
   PhoenixTimer _reconnectTimer;
-  List<Function> _sendBuffer = [];
+  List<Function()> _sendBuffer = [];
   List<PhoenixChannel> channels = [];
   WebSocket conn;
 
@@ -74,25 +74,27 @@ class PhoenixSocket {
 
   onOpen(Function() callback) => _stateChangeCallbacks.open.add(callback);
 
-  onClose(Function() callback) => _stateChangeCallbacks.close.add(callback);
+  onClose(Function(dynamic) callback) => _stateChangeCallbacks.close.add(callback);
 
-  onError(Function() callback) => _stateChangeCallbacks.error.add(callback);
+  onError(Function(dynamic) callback) => _stateChangeCallbacks.error.add(callback);
 
   onMessage(Function(PhoenixMessage) callback) =>
       _stateChangeCallbacks.message.add(callback);
 
   onConnOpened() async {
+    flushSendBuffer();
     _heartbeatTimer = new Timer.periodic(
         new Duration(milliseconds: _options.heartbeatIntervalMs),
         sendHeartbeat);
     _stateChangeCallbacks.open.forEach((cb) => cb());
   }
 
-  onConnClosed() async {
+  onConnClosed(message) async {
     _heartbeatTimer?.cancel();
-    _stateChangeCallbacks.close.forEach((cb) => cb());
+    triggerChannelErrors();
+    _stateChangeCallbacks.close.forEach((cb) => cb(message));
   }
-  onErrorOccur() async => _stateChangeCallbacks.error.forEach((cb) => cb());
+  onConnectionError(error) async => _stateChangeCallbacks.error.forEach((cb) => cb(error));
 
   onReceive(String rawJSON) {
     final message = this._decode(rawJSON);
@@ -104,12 +106,8 @@ class PhoenixSocket {
     _stateChangeCallbacks.message.forEach((callback) => callback(message));
   }
 
-  onConnectionError(error) {
-    onErrorOccur();
-  }
-
   reconnect() async {
-    onConnClosed();
+    onConnClosed(null);
     this.conn = null;
     await new Future<Null>.delayed(new Duration(milliseconds: 100));
     await this.connect();
@@ -121,6 +119,17 @@ class PhoenixSocket {
       return await this.conn.close(code);
     }
     await this.conn.close();
+  }
+
+  void flushSendBuffer() {
+    if(isConnected) {
+      _sendBuffer.forEach((callback) => callback());
+      _sendBuffer = [];
+    }
+  }
+
+  void triggerChannelErrors() {
+    channels.forEach((channel) => channel.trigger(PhoenixChannelEvents.error));
   }
 
   void stopHeartbeat() {
@@ -162,7 +171,8 @@ class PhoenixSocket {
 }
 
 class StateChangeCallbacks {
-  List<Function()> open, close, error;
+  List<Function()> open;
+  List<Function(dynamic error)> close, error;
   List<Function(PhoenixMessage)> message;
 
   StateChangeCallbacks() {
