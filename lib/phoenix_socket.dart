@@ -46,6 +46,7 @@ class PhoenixSocket {
 
   get endpoint => _endpoint;
   get isConnected => conn?.readyState == WebSocket.OPEN;
+  get connectionState => conn?.readyState ?? WebSocket.CLOSED;
   get sendBufferLength => _sendBuffer.length;
 
   PhoenixChannel channel(String topic, [Map params = const {}]) {
@@ -119,17 +120,19 @@ class PhoenixSocket {
 
   reconnect() async {
     onConnClosed(null);
-    this.conn = null;
+    conn = null;
     await new Future<Null>.delayed(new Duration(milliseconds: 100));
-    await this.connect();
+    await connect();
   }
 
   disconnect({int code}) async {
     _heartbeatTimer?.cancel();
     if (code != null) {
-      return await this.conn.close(code);
+      await conn?.close(code);
+    } else {
+      await conn?.close();
     }
-    await this.conn.close();
+    conn = null;
   }
 
   void flushSendBuffer() {
@@ -164,7 +167,7 @@ class PhoenixSocket {
 
   void push(PhoenixMessage msg) {
     final callback = () {
-      final encoded = this._encode(msg);
+      final encoded = _encode(msg);
       conn.add(encoded);
     };
 

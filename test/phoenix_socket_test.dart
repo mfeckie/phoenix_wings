@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 // import 'dart:io';
 
 import 'package:phoenix_wings/phoenix_channel.dart';
@@ -30,6 +31,29 @@ void main() {
     options.params = {"stuff": "things"};
     final socket = new PhoenixSocket(endpoint, socketOptions: options);
     expect(socket.endpoint.queryParameters, options.params);
+  });
+
+  test("Connects idempotently", () async {
+    final connection = await socket.connect();
+    final connection2 = await socket.connect();
+    expect(connection, connection2);
+  });
+
+  test("Removes existing connection on disconnect", () async {
+    final connection = await socket.connect();
+    expect(socket.conn, isNotNull);
+    await socket.disconnect();
+    expect(socket.conn, isNull);
+  });
+
+  group("Connection state", () {
+    test("defaults to closed", () {
+      expect(socket.connectionState, WebSocket.CLOSED);
+    });
+
+    test("isConnected is false when not connected", () {
+      expect(socket.isConnected, false);
+    });
   });
 
   group("Callbacks", () {
