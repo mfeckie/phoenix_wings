@@ -48,11 +48,10 @@ void main() {
     });
 
     test("Triggers callbacks on message", () {
-      final message = PhoenixSerializer.encode(new PhoenixMessage(null, "ref", "topic", "event", {}));
+      final message = PhoenixSerializer
+          .encode(new PhoenixMessage(null, "ref", "topic", "event", {}));
       PhoenixMessage receivedMessage;
-      socket.onMessage((msg) {
-        receivedMessage = msg;
-      });
+      socket.onMessage((msg) => receivedMessage = msg);
 
       socket.onConnMessage(message);
 
@@ -80,9 +79,11 @@ void main() {
     test("Triggers channel errors", () async {
       final channel = socket.channel("topic");
       var callbackCalled = false;
-      channel.onError((a, b, c) { callbackCalled = true; });
+      channel.onError((a, b, c) {
+        callbackCalled = true;
+      });
       socket.onConnectionError(PhoenixChannelEvents.error);
-      
+
       await new Future<Null>.delayed(new Duration(milliseconds: 100));
       expect(callbackCalled, true);
     });
@@ -101,33 +102,35 @@ void main() {
       expect(server.heartbeat, greaterThan(0));
     });
 
-    test("closes socket when heartbeat not ack'd within heartbeat window", () async {
+    test("closes socket when heartbeat not ack'd within heartbeat window",
+        () async {
       var closed = false;
       await socket.connect();
-      socket.onClose((_) { closed = true; });
+      socket.onClose((_) {
+        closed = true;
+      });
       final timeout = new Duration(milliseconds: 50);
       socket.sendHeartbeat(new Timer(timeout, () {}));
       expect(closed, false);
       socket.sendHeartbeat(new Timer(timeout, () {}));
       await new Future<Null>.delayed(new Duration(milliseconds: 100));
       expect(closed, true);
-
     });
 
-   test("pushes heartbeat data when connected", () async {
-     final options = new PhoenixSocketOptions();
-     options.heartbeatIntervalMs = 5;
-     final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
-         socketOptions: options);
-     await socket.connect();
-     await new Future<Null>.delayed(new Duration(milliseconds: 15));
-     socket.stopHeartbeat();
+    test("pushes heartbeat data when connected", () async {
+      final options = new PhoenixSocketOptions();
+      options.heartbeatIntervalMs = 5;
+      final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
+          socketOptions: options);
+      await socket.connect();
+      await new Future<Null>.delayed(new Duration(milliseconds: 15));
+      socket.stopHeartbeat();
 
-     final hearbeatMessage = server.heartbeatMessageReceived;
+      final hearbeatMessage = server.heartbeatMessageReceived;
 
-     expect(hearbeatMessage.topic, 'phoenix');
-     expect(hearbeatMessage.event, 'heartbeat');
-  });
+      expect(hearbeatMessage.topic, 'phoenix');
+      expect(hearbeatMessage.event, 'heartbeat');
+    });
 
     // TODO - sendHeartbeat
   });

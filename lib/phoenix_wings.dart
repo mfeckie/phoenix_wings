@@ -25,10 +25,6 @@ library phoenix_wings;
 //  CHANNEL_EVENTS.leave
 //]
 
-enum SocketStates {
-  connecting, open, closing, closed
-}
+enum SocketStates { connecting, open, closing, closed }
 
-class PhoenixWings {
-
-}
+class PhoenixWings {}

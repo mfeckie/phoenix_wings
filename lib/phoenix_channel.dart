@@ -44,7 +44,9 @@ class PhoenixChannel {
     joinPush.receive("ok", (msg) {});
 
     onError((reason, _a, _b) {
-      if (isLeaving || isClosed) { return; }
+      if (isLeaving || isClosed) {
+        return;
+      }
       _state = PhoenixChannelState.errored;
       // _rejoinTimer.scheduleTimeout();
     });
@@ -68,7 +70,7 @@ class PhoenixChannel {
   }
   String joinRef() => this.joinPush.ref;
 
-  trigger(String event, [String payload, String ref, String joinRefParam]) {
+  trigger(String event, [Map payload, String ref, String joinRefParam]) {
     final handledPayload = this.onMessage(event, payload, ref);
     if (payload != null && handledPayload == null) {
       throw ("channel onMessage callback must return payload modified or unmodified");
@@ -84,8 +86,8 @@ class PhoenixChannel {
     return ref;
   }
 
-  onError(callback) =>
-      on(PhoenixChannelEvents.error, (payload, ref, joinRef) => callback(payload, ref, joinRef));
+  onError(callback) => on(PhoenixChannelEvents.error,
+      (payload, ref, joinRef) => callback(payload, ref, joinRef));
 
   onMessage(event, payload, ref) => payload;
 }

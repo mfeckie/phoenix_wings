@@ -1,4 +1,3 @@
-
 class PhoenixSocketOptions {
   int timeout = 10000;
   int heartbeatIntervalMs = 30000;

@@ -16,9 +16,9 @@ class PhoenixPush {
 //   var _sent = false;
 //   dynamic refEvent;
   String _ref;
-PhoenixPush(this.channel, String event, this.params, [this._timeout]) {
-  ref = this.channel.socket.makeRef();
-}
+  PhoenixPush(this.channel, String event, this.params, [this._timeout]) {
+    ref = this.channel.socket.makeRef();
+  }
 
   PhoenixPush receive(String status, Function(dynamic response) callback) {
     if (hasReceived(status)) {
@@ -43,7 +43,6 @@ PhoenixPush(this.channel, String event, this.params, [this._timeout]) {
 //     cancelRefEvent();
 //   }
 
-
 //   cancelRefEvent() {
 //     if(refEvent != null) {
 //       channel.off(event);
@@ -61,7 +60,7 @@ PhoenixPush(this.channel, String event, this.params, [this._timeout]) {
 //   }
 
 //   _startTimeout() {
-    
+
 //   }
 }
 

@@ -55,7 +55,8 @@ class PhoenixSocket {
   }
 
   remove(PhoenixChannel channelToRemove) {
-    channels.removeWhere((channel) => channel.joinRef() == channelToRemove.joinRef());
+    channels.removeWhere(
+        (channel) => channel.joinRef() == channelToRemove.joinRef());
   }
 
   connect() async {
@@ -66,7 +67,7 @@ class PhoenixSocket {
     try {
       conn = await WebSocket.connect(_endpoint.toString());
       this.onConnOpened();
-      conn.listen(onReceive, onDone: reconnect, onError: onConnectionError);
+      conn.listen(onConnMessage, onDone: reconnect, onError: onConnectionError);
     } catch (reason) {
       print(reason);
     }
@@ -74,9 +75,11 @@ class PhoenixSocket {
 
   onOpen(Function() callback) => _stateChangeCallbacks.open.add(callback);
 
-  onClose(Function(dynamic) callback) => _stateChangeCallbacks.close.add(callback);
+  onClose(Function(dynamic) callback) =>
+      _stateChangeCallbacks.close.add(callback);
 
-  onError(Function(dynamic) callback) => _stateChangeCallbacks.error.add(callback);
+  onError(Function(dynamic) callback) =>
+      _stateChangeCallbacks.error.add(callback);
 
   onMessage(Function(PhoenixMessage) callback) =>
       _stateChangeCallbacks.message.add(callback);
@@ -94,6 +97,7 @@ class PhoenixSocket {
     triggerChannelErrors();
     _stateChangeCallbacks.close.forEach((cb) => cb(message));
   }
+
   onConnectionError(error) async {
     triggerChannelErrors();
     _stateChangeCallbacks.error.forEach((cb) => cb(error));
@@ -129,7 +133,7 @@ class PhoenixSocket {
   }
 
   void flushSendBuffer() {
-    if(isConnected) {
+    if (isConnected) {
       _sendBuffer.forEach((callback) => callback());
       _sendBuffer = [];
     }
@@ -147,7 +151,7 @@ class PhoenixSocket {
     if (conn?.readyState != WebSocket.OPEN) {
       return;
     }
-    
+
     if (_pendingHeartbeatRef != null) {
       _pendingHeartbeatRef = null;
       conn.close(WebSocketStatus.NORMAL_CLOSURE, "Heartbeat timeout");

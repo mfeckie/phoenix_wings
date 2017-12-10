@@ -9,4 +9,3 @@ class PhoenixSerializer {
     return PhoenixMessage.decode(rawPayload);
   }
 }
-

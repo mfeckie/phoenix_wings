@@ -51,7 +51,8 @@ void main() {
   });
 
   test("parses raw message and triggers channel event", () async {
-    final message = PhoenixSerializer.encode(new PhoenixMessage("1", "ref", "topic", "event", {"payload": "payload"}));
+    final message = PhoenixSerializer.encode(new PhoenixMessage(
+        "1", "ref", "topic", "event", {"payload": "payload"}));
 
     final targetChannel = socket.channel("topic");
     var callbackInvoked = false;

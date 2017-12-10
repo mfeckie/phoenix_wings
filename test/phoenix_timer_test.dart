@@ -43,7 +43,7 @@ void main() {
   });
 
   test("Incrementally backsoff", () async {
-    var callback = () { };
+    var callback = () {};
     final timer = new PhoenixTimer(callback);
     timer.reconnectAfterMs = [1, 50, 2000];
     timer.scheduleTimeout();

@@ -9,8 +9,8 @@ class PhoenixTimer {
   PhoenixTimer(this._callback);
 
   void scheduleTimeout() {
-     clearTimeout();
-     timer = new Timer(timeoutDuration(), _performTask);
+    clearTimeout();
+    timer = new Timer(timeoutDuration(), _performTask);
   }
 
   void _performTask() {
@@ -33,5 +33,4 @@ class PhoenixTimer {
     tries = 0;
     clearTimeout();
   }
-
 }

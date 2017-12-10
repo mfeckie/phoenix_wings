@@ -3,7 +3,8 @@ import 'package:phoenix_wings/phoenix_message.dart';
 
 void main() {
   test("Can encode a message", () {
-    final message = new PhoenixMessage("join_ref","ref","topic", "event", {"payload": ""});
+    final message = new PhoenixMessage(
+        "join_ref", "ref", "topic", "event", {"payload": ""});
     final json = message.toJSON();
     expect(json, '["join_ref","ref","topic","event",{"payload":""}]');
   });
