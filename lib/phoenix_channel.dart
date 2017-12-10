@@ -18,15 +18,18 @@ class PhoenixChannelEvents {
   static const join = "phx_join";
   static const reply = "phx_reply";
   static const leave = "phx_leave";
+  static const lifecycleEvents = const [close, error, join, reply, leave];
+  static bool lifecycleEvent(event) =>
+      lifecycleEvents.any((eventName) => event == eventName);
 }
 
 class PhoenixChannel {
   PhoenixChannelState _state = PhoenixChannelState.closed;
   String topic;
-  Map params;
+  Map params = {};
   PhoenixSocket socket;
   List<PhoenixChannelBinding> _bindings = [];
-  List _pushBuffer;
+  List _pushBuffer = [];
   int _bindingRef = 0;
   int _timeout;
   var _joinedOnce = false;
