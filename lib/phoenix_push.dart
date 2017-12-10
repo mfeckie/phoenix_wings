@@ -1,22 +1,22 @@
 // import 'dart:async';
 
 import 'package:phoenix_wings/phoenix_channel.dart';
+import 'package:phoenix_wings/phoenix_message.dart';
 // import 'package:phoenix_wings/phoenix_message.dart';
 
 class PhoenixPush {
   PhoenixChannel channel;
-  Map params;
+  Map payload;
   String ref;
-//   String event;
+  String event;
 //   String payload;
   var _timeout = 10000;
 //   Timer timeoutTimer;
   dynamic receivedResp;
   List recHooks = [];
-//   var _sent = false;
+  var _sent = false;
 //   dynamic refEvent;
-  String _ref;
-  PhoenixPush(this.channel, String event, this.params, [this._timeout]) {
+  PhoenixPush(this.channel, this.event, this.payload, [this._timeout]) {
     ref = this.channel.socket.makeRef();
   }
 
@@ -38,6 +38,9 @@ class PhoenixPush {
 //     reset();
 //     send();
 //   }
+resend() {
+  send();
+}
 
 //   reset() {
 //     cancelRefEvent();
@@ -48,6 +51,12 @@ class PhoenixPush {
 //       channel.off(event);
 //     }
 //   }
+send() {
+  _sent = true;
+  channel
+  .socket
+  .push(new PhoenixMessage(channel.joinRef(), ref, channel.topic, event, payload));
+}
 
 //   send() {
 //     _sent = true;

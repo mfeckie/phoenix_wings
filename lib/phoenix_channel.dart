@@ -41,7 +41,12 @@ class PhoenixChannel {
   PhoenixChannel(this.topic, this.params, this.socket) {
     joinPush = new PhoenixPush(this, PhoenixChannelEvents.join, this.params);
 
-    joinPush.receive("ok", (msg) {});
+    joinPush.receive("ok", (msg) {
+      _state = PhoenixChannelState.joined;
+      // this.rejoinTimer.reset()
+      _pushBuffer.forEach((pushEvent) => pushEvent.send());
+      _pushBuffer = [];
+    });
 
     onError((reason, _a, _b) {
       if (isLeaving || isClosed) {
@@ -68,6 +73,27 @@ class PhoenixChannel {
     }
     return true;
   }
+
+  PhoenixPush join() {
+    if (_joinedOnce) {
+      throw("tried to join channel multiple times");
+    } else {
+      _joinedOnce = true;
+      rejoin();
+      return joinPush;
+    }
+  }
+
+  rejoin() {
+    if (isLeaving) { return; }
+    sendJoin();
+  }
+
+  sendJoin() {
+    _state = PhoenixChannelState.joining;
+    joinPush.resend();
+  }
+
   String joinRef() => this.joinPush.ref;
 
   trigger(String event, [Map payload, String ref, String joinRefParam]) {
