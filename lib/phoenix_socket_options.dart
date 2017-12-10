@@ -3,5 +3,5 @@ class PhoenixSocketOptions {
   int heartbeatIntervalMs = 30000;
   List<int> reconnectAfterMs;
   Function logger = () {};
-  Map<String, String> params;
+  Map<String, String> params = {"vsn": "2.0.0"};
 }
