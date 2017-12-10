@@ -55,7 +55,17 @@ class PhoenixChannel {
   get isJoined => _state == PhoenixChannelState.joined;
   get isJoining => _state == PhoenixChannelState.joining;
   get isLeaving => _state == PhoenixChannelState.leaving;
-
+  bool isMember(
+      String topicParam, String event, Map payload, String joinRefParam) {
+    if (topic != topicParam) {
+      return false;
+    }
+    final isLifecycleEvent = PhoenixChannelEvents.lifecycleEvent(event);
+    if (joinRef != null && isLifecycleEvent && (joinRefParam != joinRef())) {
+      return false;
+    }
+    return true;
+  }
   String joinRef() => this.joinPush.ref;
 
   trigger(String event, [String payload, String ref, String joinRefParam]) {
