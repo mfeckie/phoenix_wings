@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
+import 'package:phoenix_wings/phoenix_serializer.dart';
 import 'package:phoenix_wings/phoenix_socket_options.dart';
 import 'package:test/test.dart';
 import 'package:phoenix_wings/phoenix_socket.dart';
@@ -44,6 +45,22 @@ void main() {
       await new Future<Null>.delayed(new Duration(milliseconds: 10));
 
       expect(callbackCalled, true);
+    });
+
+    test("Triggers callbacks on message", () {
+      final message = PhoenixSerializer.encode(new PhoenixMessage(null, "ref", "topic", "event", {}));
+      PhoenixMessage receivedMessage;
+      socket.onMessage((msg) {
+        receivedMessage = msg;
+      });
+
+      socket.onConnMessage(message);
+
+      expect(receivedMessage.ref, "ref");
+      expect(receivedMessage.joinRef, null);
+      expect(receivedMessage.topic, "topic");
+      expect(receivedMessage.event, "event");
+      expect(receivedMessage.payload, {});
     });
 
     test("Triggers callbacks on close", () async {

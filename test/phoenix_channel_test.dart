@@ -1,3 +1,8 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:phoenix_wings/phoenix_message.dart';
+import 'package:phoenix_wings/phoenix_serializer.dart';
 import 'package:test/test.dart';
 import 'package:phoenix_wings/phoenix_socket.dart';
 
@@ -43,5 +48,29 @@ void main() {
     expect(socket.channels.length, 1);
 
     expect(socket.channels.first, channel2);
+  });
+
+  test("parses raw message and triggers channel event", () async {
+    final message = PhoenixSerializer.encode(new PhoenixMessage("1", "ref", "topic", "event", {"payload": "payload"}));
+
+    final targetChannel = socket.channel("topic");
+    var callbackInvoked = false;
+    var calledWithPayload;
+    targetChannel.on("event", (payload, ref, joinRef) {
+      callbackInvoked = true;
+      calledWithPayload = payload;
+    });
+
+    final otherChannel = socket.channel("off-topic");
+    var otherCallbackInvoked = false;
+    otherChannel.on("event", (event, payload, ref) {
+      otherCallbackInvoked = true;
+    });
+
+    socket.onConnMessage(message);
+
+    expect(callbackInvoked, true);
+    expect(calledWithPayload, {'payload': 'payload'});
+    expect(otherCallbackInvoked, false);
   });
 }

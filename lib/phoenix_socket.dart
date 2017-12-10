@@ -99,13 +99,17 @@ class PhoenixSocket {
     _stateChangeCallbacks.error.forEach((cb) => cb(error));
   }
 
-  onReceive(String rawJSON) {
+  onConnMessage(String rawJSON) {
     final message = this._decode(rawJSON);
     if (message.ref == _pendingHeartbeatRef) {
       _pendingHeartbeatRef = null;
     }
-    // this.channels.filter( channel => channel.isMember(topic, event, payload, join_ref) )
-    //              .forEach( channel => channel.trigger(event, payload, ref, join_ref) )
+
+    channels
+        .where((channel) => channel.isMember(
+            message.topic, message.event, message.payload, message.joinRef))
+        .forEach((channel) => channel.trigger(
+            message.event, message.payload, message.ref, message.joinRef));
     _stateChangeCallbacks.message.forEach((callback) => callback(message));
   }
 
