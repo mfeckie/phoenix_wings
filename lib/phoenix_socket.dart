@@ -5,7 +5,6 @@ import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
 import 'package:phoenix_wings/phoenix_serializer.dart';
 import 'package:phoenix_wings/phoenix_socket_options.dart';
-import 'package:phoenix_wings/phoenix_timer.dart';
 
 class PhoenixSocket {
   Uri _endpoint;
@@ -17,7 +16,6 @@ class PhoenixSocket {
   var _decode = PhoenixSerializer.decode;
   Timer _heartbeatTimer;
   String _pendingHeartbeatRef;
-  PhoenixTimer _reconnectTimer;
   List<Function()> _sendBuffer = [];
   List<PhoenixChannel> channels = [];
   WebSocket conn;

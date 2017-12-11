@@ -44,7 +44,7 @@ void main() {
     final push = new PhoenixPush(channel, "event", {}, 100);
 
     var callbackExecuted = false;
-    var payload = null;
+    Map payload;
     var notReceiveExecuted = false;
 
     push.receive("ok", (resp) {

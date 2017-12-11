@@ -1,6 +1,4 @@
-import 'dart:async';
-import 'dart:convert';
-
+import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
 import 'package:phoenix_wings/phoenix_serializer.dart';
 import 'package:test/test.dart';
@@ -22,32 +20,51 @@ void main() {
     await server.shutdown();
   });
 
-  test("Returns channel with given topic and params", () {
-    final channel = socket.channel("topic", {"one": "two"});
+  group("Channel construciton", () {
+    test("Returns channel with given topic and params", () {
+      final channel = socket.channel("topic", {"one": "two"});
 
-    expect(channel.socket, equals(socket));
-    expect(channel.topic, "topic");
-    expect(channel.params, {"one": "two"});
+      expect(channel.socket, equals(socket));
+      expect(channel.topic, "topic");
+      expect(channel.params, {"one": "two"});
+      expect(channel.joinPush.payload, {"one": "two"});
+      expect(channel.joinPush.event, "phx_join");
+    });
+
+    test("Adds channel to channel list", () {
+      expect(socket.channels.length, 0);
+      final channel = socket.channel("topic", {"one": "two"});
+      expect(socket.channels.length, 1);
+      expect(socket.channels[0], channel);
+    });
+
+    test("Removes given channel", () {
+      final channel1 = socket.channel("topic-1");
+      final channel2 = socket.channel("topic-2");
+
+      expect(socket.channels.length, 2);
+
+      socket.remove(channel1);
+
+      expect(socket.channels.length, 1);
+
+      expect(socket.channels.first, channel2);
+    });
   });
 
-  test("Adds channel to channel list", () {
-    expect(socket.channels.length, 0);
-    final channel = socket.channel("topic", {"one": "two"});
-    expect(socket.channels.length, 1);
-    expect(socket.channels[0], channel);
-  });
+  group("joining a channel", () {
+    PhoenixChannel channel;
+    setUp(() {
+      channel = socket.channel("topic", {"one": "two"});
+    });
 
-  test("Removes given channel", () {
-    final channel1 = socket.channel("topic-1");
-    final channel2 = socket.channel("topic-2");
+    test("Sets state to joining", () async {
+      expect(channel.isJoined, false);
+      channel.join();
+      expect(channel.isJoining, true);
 
-    expect(socket.channels.length, 2);
-
-    socket.remove(channel1);
-
-    expect(socket.channels.length, 1);
-
-    expect(socket.channels.first, channel2);
+      expect(channel.join, throwsA("tried to join channel multiple times"));
+    });
   });
 
   test("parses raw message and triggers channel event", () async {
