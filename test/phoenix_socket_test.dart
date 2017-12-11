@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-// import 'dart:io';
 
 import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
@@ -40,7 +38,7 @@ void main() {
   });
 
   test("Removes existing connection on disconnect", () async {
-    final connection = await socket.connect();
+    await socket.connect();
     expect(socket.conn, isNotNull);
     await socket.disconnect();
     expect(socket.conn, isNull);
@@ -159,13 +157,6 @@ void main() {
     // TODO - sendHeartbeat
   });
   group("push", () {
-    final data = {
-      "topic": "topic",
-      "event": "event",
-      "payload": "payload",
-      "ref": "ref"
-    };
-    final json = JSON.encode(data);
     final msg = new PhoenixMessage(
         "joinRef", "ref", "topic", "test-push", {"payload": "payload"});
 
