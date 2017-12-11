@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:phoenix_wings/phoenix_push.dart';
 import 'package:phoenix_wings/phoenix_socket.dart';
@@ -31,21 +30,41 @@ class PhoenixChannel {
   List<PhoenixChannelBinding> _bindings = [];
   List _pushBuffer = [];
   int _bindingRef = 0;
-  int _timeout;
   var _joinedOnce = false;
   PhoenixPush joinPush;
-  final Timer _rejoinTimer =
-      new Timer.periodic(new Duration(milliseconds: 10000), (_timer) {
-    // TODO
-  });
+  Timer rejoinTimer;
+
   PhoenixChannel(this.topic, this.params, this.socket) {
-    joinPush = new PhoenixPush(this, PhoenixChannelEvents.join, this.params);
+    joinPush =
+        new PhoenixPush(this, PhoenixChannelEvents.join, this.params, timeout);
 
     joinPush.receive("ok", (msg) {
       _state = PhoenixChannelState.joined;
-      // this.rejoinTimer.reset()
+      clearRejoinTimer();
       _pushBuffer.forEach((pushEvent) => pushEvent.send());
       _pushBuffer = [];
+    });
+
+    joinPush.receive("timeout", (_) {
+      if (!isJoining) {
+        return;
+      }
+      final leavePush =
+          new PhoenixPush(this, PhoenixChannelEvents.leave, {}, timeout);
+      leavePush.send();
+      _state = PhoenixChannelState.errored;
+      joinPush.reset();
+      startRejoinTimer();
+    });
+
+    onClose((a, b, c) {
+      clearRejoinTimer();
+      _state = PhoenixChannelState.closed;
+      socket.remove(this);
+    });
+
+    on(PhoenixChannelEvents.reply, (payload, ref, _joinRef) {
+      trigger(replyEventName(ref), payload);
     });
 
     onError((reason, _a, _b) {
@@ -53,15 +72,34 @@ class PhoenixChannel {
         return;
       }
       _state = PhoenixChannelState.errored;
-      // _rejoinTimer.scheduleTimeout();
+      startRejoinTimer();
     });
   }
+
+  startRejoinTimer() {
+    rejoinTimer = new Timer.periodic(new Duration(milliseconds: timeout), (_) {
+      if (socket.isConnected) {
+        rejoin(timeout);
+      }
+    });
+  }
+
+  clearRejoinTimer() {
+    rejoinTimer?.cancel();
+    rejoinTimer = null;
+  }
+
+  get canPush => socket.isConnected && isJoined;
 
   get isClosed => _state == PhoenixChannelState.closed;
   get isErrored => _state == PhoenixChannelState.errored;
   get isJoined => _state == PhoenixChannelState.joined;
   get isJoining => _state == PhoenixChannelState.joining;
   get isLeaving => _state == PhoenixChannelState.leaving;
+  get timeout => socket.timeout;
+
+  replyEventName(ref) => "chan_reply_$ref";
+
   bool isMember(
       String topicParam, String event, Map payload, String joinRefParam) {
     if (topic != topicParam) {
@@ -76,22 +114,61 @@ class PhoenixChannel {
 
   PhoenixPush join() {
     if (_joinedOnce) {
-      throw("tried to join channel multiple times");
+      throw ("tried to join channel multiple times");
     } else {
       _joinedOnce = true;
-      rejoin();
+      rejoin(timeout);
       return joinPush;
     }
   }
 
-  rejoin() {
-    if (isLeaving) { return; }
-    sendJoin();
+  leave() {
+    _state = PhoenixChannelState.leaving;
+
+    Function onCloseCallback = (_) {
+      trigger(PhoenixChannelEvents.close);
+    };
+
+    final leavePush =
+        new PhoenixPush(this, PhoenixChannelEvents.leave, {}, timeout);
+
+    leavePush
+        .receive("ok", onCloseCallback)
+        .receive("timeout", onCloseCallback);
+
+    leavePush.send();
+
+    if (!canPush) {
+      leavePush.trigger("ok", {});
+    }
+
+    return leavePush;
   }
 
-  sendJoin() {
+  PhoenixPush push({String event, Map payload}) {
+    if (!_joinedOnce) {
+      throw ("Tried to push event before joining channel");
+    }
+    final pushEvent = new PhoenixPush(this, event, payload, timeout);
+    if (canPush) {
+      pushEvent.send();
+    } else {
+      pushEvent.startTimeout();
+      _pushBuffer.add(pushEvent);
+    }
+    return pushEvent;
+  }
+
+  rejoin(timeout) {
+    if (isLeaving) {
+      return;
+    }
+    sendJoin(timeout);
+  }
+
+  sendJoin(timeout) {
     _state = PhoenixChannelState.joining;
-    joinPush.resend();
+    joinPush.resend(timeout);
   }
 
   String joinRef() => this.joinPush.ref;
@@ -101,7 +178,6 @@ class PhoenixChannel {
     if (payload != null && handledPayload == null) {
       throw ("channel onMessage callback must return payload modified or unmodified");
     }
-
     _bindings.where((bound) => bound.event == event).forEach((bound) =>
         bound.callback(handledPayload, ref, joinRefParam ?? joinRef()));
   }
@@ -110,6 +186,17 @@ class PhoenixChannel {
     final ref = _bindingRef++;
     _bindings.add(new PhoenixChannelBinding(event, ref, callback));
     return ref;
+  }
+
+  void off(event, [ref]) {
+    _bindings = _bindings
+        .where((binding) =>
+            binding.event != event && (ref == null || ref == binding.ref))
+        .toList();
+  }
+
+  onClose(Function(dynamic, dynamic, dynamic) callback) {
+    on(PhoenixChannelEvents.close, callback);
   }
 
   onError(callback) => on(PhoenixChannelEvents.error,
