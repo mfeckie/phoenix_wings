@@ -1,76 +1,97 @@
-// import 'dart:async';
+import 'dart:async';
 
 import 'package:phoenix_wings/phoenix_channel.dart';
 import 'package:phoenix_wings/phoenix_message.dart';
-// import 'package:phoenix_wings/phoenix_message.dart';
 
 class PhoenixPush {
-  PhoenixChannel channel;
-  Map payload;
-  String ref;
-  String event;
-//   String payload;
-  var _timeout = 10000;
-//   Timer timeoutTimer;
-  dynamic receivedResp;
+  bool sent = false;
+  Map receivedResp;
+  int timeout;
   List recHooks = [];
-  var _sent = false;
-//   dynamic refEvent;
-  PhoenixPush(this.channel, this.event, this.payload, [this._timeout]) {
+  Map payload = {};
+  PhoenixChannel channel;
+  String event;
+  String ref;
+  String refEvent;
+
+  Timer timeoutTimer;
+
+  PhoenixPush(this.channel, this.event, this.payload, this.timeout) {
     ref = this.channel.socket.makeRef();
   }
 
-  PhoenixPush receive(String status, Function(dynamic response) callback) {
+  PhoenixPush receive(String status, Function(Map response) callback) {
     if (hasReceived(status)) {
-      callback(receivedResp.response);
+      callback(receivedResp);
     }
 
     this.recHooks.add(new PhoenixPushStatus(status, callback));
     return this;
   }
 
-  hasReceived(status) {
-    return false;
+  bool hasReceived(status) {
+    return receivedResp != null && receivedResp["status"] == status;
   }
 
-//   resend(int timeout) {
-//     _timeout = timeout;
-//     reset();
-//     send();
-//   }
-resend() {
-  send();
-}
+  matchReceive(Map payload) {
+    recHooks
+        .where((hook) => hook.status == payload["status"])
+        .forEach((hook) => hook.callback(payload["response"]));
+  }
 
-//   reset() {
-//     cancelRefEvent();
-//   }
+  resend(int timeout) {
+    timeout = timeout;
+    reset();
+    send();
+  }
 
-//   cancelRefEvent() {
-//     if(refEvent != null) {
-//       channel.off(event);
-//     }
-//   }
-send() {
-  _sent = true;
-  channel
-  .socket
-  .push(new PhoenixMessage(channel.joinRef(), ref, channel.topic, event, payload));
-}
+  cancelRefEvent() {
+    if (refEvent == null) {
+      return;
+    }
+    channel.off(refEvent);
+  }
 
-//   send() {
-//     _sent = true;
-//     // startTimeout
-//     _startTimeout();
-//     channel
-//     .socket
-//     .push(new PhoenixMessage(channel.joinRef(), _ref, topic, event, payload));
+  reset() {
+    cancelRefEvent();
+    ref = null;
+    refEvent = null;
+    receivedResp = null;
+    sent = false;
+  }
 
-//   }
+  send() {
+    startTimeout();
+    refEvent = channel.replyEventName(ref);
+    sent = true;
+    channel.socket.push(new PhoenixMessage(
+        channel.joinRef(), ref, channel.topic, event, payload));
+  }
 
-//   _startTimeout() {
+  startTimeout() {
+    cancelTimeout();
+    ref = channel.socket.makeRef();
+    refEvent = channel.replyEventName(ref);
+    channel.on(refEvent, (payload, _a, _b) {
+      cancelRefEvent();
+      cancelTimeout();
+      receivedResp = payload;
+      matchReceive(payload);
+    });
 
-//   }
+    timeoutTimer = new Timer(new Duration(milliseconds: timeout), () {
+      trigger("timeout", {});
+    });
+  }
+
+  cancelTimeout() {
+    timeoutTimer?.cancel();
+    timeoutTimer = null;
+  }
+
+  trigger(status, response) {
+    channel.trigger(refEvent, {"status": status, "response": response});
+  }
 }
 
 class PhoenixPushStatus {
