@@ -12,9 +12,10 @@ class PhoenixSocket {
 
   List<int> reconnectAfterMs = const [1000, 2000, 5000, 10000];
   int ref = 0;
+  int tries = -1;
   var _encode = PhoenixSerializer.encode;
   var _decode = PhoenixSerializer.decode;
-  Timer _heartbeatTimer;
+  Timer _heartbeatTimer, _reconnectTimer;
   String _pendingHeartbeatRef;
   List<Function()> _sendBuffer = [];
   List<PhoenixChannel> channels = [];
@@ -65,10 +66,13 @@ class PhoenixSocket {
 
     try {
       conn = await WebSocket.connect(_endpoint.toString());
+      _reconnectTimer?.cancel();
+      _reconnectTimer = null;
       this.onConnOpened();
       conn.listen(onConnMessage, onDone: reconnect, onError: onConnectionError);
     } catch (reason) {
       print(reason);
+      reconnect();
     }
   }
 
@@ -116,11 +120,20 @@ class PhoenixSocket {
     _stateChangeCallbacks.message.forEach((callback) => callback(message));
   }
 
-  reconnect() async {
+  reconnect() {
     onConnClosed(null);
     conn = null;
-    await new Future<Null>.delayed(new Duration(milliseconds: 100));
-    await connect();
+    final reconnectInMs = reconnectTimeout();
+    print("Reconnecting in $reconnectInMs");
+    _reconnectTimer =
+        new Timer(new Duration(milliseconds: reconnectInMs), connect);
+  }
+
+  int reconnectTimeout() {
+    if (tries < reconnectAfterMs.length - 1) {
+      tries++;
+    }
+    return reconnectAfterMs[tries];
   }
 
   disconnect({int code}) async {
