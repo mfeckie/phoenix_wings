@@ -68,6 +68,7 @@ class PhoenixSocket {
       conn = await WebSocket.connect(_endpoint.toString());
       _reconnectTimer?.cancel();
       _reconnectTimer = null;
+      tries = -1;
       this.onConnOpened();
       conn.listen(onConnMessage, onDone: reconnect, onError: onConnectionError);
     } catch (reason) {
