@@ -109,7 +109,8 @@ class PhoenixSocket {
 
   onConnMessage(String rawJSON) {
     final message = this._decode(rawJSON);
-    if (message.ref == _pendingHeartbeatRef) {
+
+    if (_pendingHeartbeatRef != null && message.ref == _pendingHeartbeatRef) {
       _pendingHeartbeatRef = null;
     }
 
