@@ -40,7 +40,6 @@ class PhoenixChannel {
 
     joinPush.receive("ok", (msg) {
       _state = PhoenixChannelState.joined;
-      clearRejoinTimer();
       _pushBuffer.forEach((pushEvent) => pushEvent.send());
       _pushBuffer = [];
     });
@@ -58,7 +57,7 @@ class PhoenixChannel {
     });
 
     onClose((a, b, c) {
-      clearRejoinTimer();
+      rejoinTimer?.cancel();
       _state = PhoenixChannelState.closed;
       socket.remove(this);
     });
@@ -77,16 +76,17 @@ class PhoenixChannel {
   }
 
   startRejoinTimer() {
-    rejoinTimer = new Timer.periodic(new Duration(milliseconds: timeout), (_) {
+    rejoinTimer = new Timer.periodic(new Duration(milliseconds: timeout), (timer) {
+      if (_state == PhoenixChannelState.joined) {
+        timer.cancel();
+        rejoinTimer = null;
+        return;
+      }
+
       if (socket.isConnected) {
         rejoin(timeout);
       }
     });
-  }
-
-  clearRejoinTimer() {
-    rejoinTimer?.cancel();
-    rejoinTimer = null;
   }
 
   get canPush => socket.isConnected && isJoined;
