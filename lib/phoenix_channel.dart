@@ -96,6 +96,9 @@ class PhoenixChannel {
   get isJoined => _state == PhoenixChannelState.joined;
   get isJoining => _state == PhoenixChannelState.joining;
   get isLeaving => _state == PhoenixChannelState.leaving;
+  
+  get joinRef => this.joinPush.ref;
+
   get timeout => socket.timeout;
 
   replyEventName(ref) => "chan_reply_$ref";
@@ -106,7 +109,7 @@ class PhoenixChannel {
       return false;
     }
     final isLifecycleEvent = PhoenixChannelEvents.lifecycleEvent(event);
-    if (joinRef != null && isLifecycleEvent && (joinRefParam != joinRef())) {
+    if (joinRef != null && isLifecycleEvent && (joinRefParam != joinRef)) {
       return false;
     }
     return true;
@@ -171,7 +174,6 @@ class PhoenixChannel {
     joinPush.resend(timeout);
   }
 
-  String joinRef() => this.joinPush.ref;
 
   trigger(String event, [Map payload, String ref, String joinRefParam]) {
     final handledPayload = this.onMessage(event, payload, ref);
@@ -179,7 +181,7 @@ class PhoenixChannel {
       throw ("channel onMessage callback must return payload modified or unmodified");
     }
     _bindings.where((bound) => bound.event == event).forEach((bound) =>
-        bound.callback(handledPayload, ref, joinRefParam ?? joinRef()));
+        bound.callback(handledPayload, ref, joinRefParam ?? joinRef));
   }
 
   int on(String event, MessageCallback callback) {

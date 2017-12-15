@@ -56,7 +56,7 @@ class PhoenixSocket {
 
   remove(PhoenixChannel channelToRemove) {
     channels.removeWhere(
-        (channel) => channel.joinRef() == channelToRemove.joinRef());
+        (chan) => chan.joinRef == channelToRemove.joinRef);
   }
 
   connect() async {

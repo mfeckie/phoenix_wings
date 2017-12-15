@@ -65,7 +65,7 @@ class PhoenixPush {
     refEvent = channel.replyEventName(ref);
     sent = true;
     channel.socket.push(new PhoenixMessage(
-        channel.joinRef(), ref, channel.topic, event, payload));
+        channel.joinRef, ref, channel.topic, event, payload));
   }
 
   startTimeout() {
