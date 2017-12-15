@@ -182,7 +182,7 @@ class PhoenixChannel {
         bound.callback(handledPayload, ref, joinRefParam ?? joinRef()));
   }
 
-  int on(String event, Function(dynamic, dynamic, dynamic) callback) {
+  int on(String event, MessageCallback callback) {
     final ref = _bindingRef++;
     _bindings.add(new PhoenixChannelBinding(event, ref, callback));
     return ref;
@@ -195,7 +195,7 @@ class PhoenixChannel {
         .toList();
   }
 
-  onClose(Function(dynamic, dynamic, dynamic) callback) {
+  onClose(MessageCallback callback) {
     on(PhoenixChannelEvents.close, callback);
   }
 
@@ -208,6 +208,8 @@ class PhoenixChannel {
 class PhoenixChannelBinding {
   String event;
   int ref;
-  Function(dynamic, dynamic, dynamic) callback;
+  MessageCallback callback;
   PhoenixChannelBinding(this.event, this.ref, this.callback);
 }
+
+typedef MessageCallback (Map payload, String ref, String joinRef);
