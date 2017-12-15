@@ -126,7 +126,6 @@ class PhoenixSocket {
     onConnClosed(null);
     conn = null;
     final reconnectInMs = reconnectTimeout();
-    print("Reconnecting in $reconnectInMs");
     _reconnectTimer =
         new Timer(new Duration(milliseconds: reconnectInMs), connect);
   }
