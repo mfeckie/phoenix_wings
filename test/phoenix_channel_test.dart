@@ -1,8 +1,8 @@
-import 'package:phoenix_wings/phoenix_channel.dart';
-import 'package:phoenix_wings/phoenix_message.dart';
-import 'package:phoenix_wings/phoenix_serializer.dart';
+import 'package:phoenix_wings/src/phoenix_channel.dart';
+import 'package:phoenix_wings/src/phoenix_message.dart';
+import 'package:phoenix_wings/src/phoenix_serializer.dart';
 import 'package:test/test.dart';
-import 'package:phoenix_wings/phoenix_socket.dart';
+import 'package:phoenix_wings/src/phoenix_socket.dart';
 
 import 'mock_server.dart';
 

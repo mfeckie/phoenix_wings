@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:phoenix_wings/phoenix_serializer.dart';
+import 'package:phoenix_wings/src/phoenix_serializer.dart';
 
 class MockServer {
   HttpServer _server;

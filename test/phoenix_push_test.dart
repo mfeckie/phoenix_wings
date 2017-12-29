@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:phoenix_wings/phoenix_channel.dart';
-import 'package:phoenix_wings/phoenix_push.dart';
-import 'package:phoenix_wings/phoenix_socket.dart';
+import 'package:phoenix_wings/src/phoenix_channel.dart';
+import 'package:phoenix_wings/src/phoenix_push.dart';
+import 'package:phoenix_wings/src/phoenix_socket.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:phoenix_wings/phoenix_message.dart';
+import 'package:phoenix_wings/src/phoenix_message.dart';
 
 void main() {
   test("Can encode a message", () {

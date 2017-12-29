@@ -1,4 +1,4 @@
-import 'package:phoenix_wings/phoenix_message.dart';
+import 'package:phoenix_wings/src/phoenix_message.dart';
 
 class PhoenixSerializer {
   static String encode(PhoenixMessage msg) {

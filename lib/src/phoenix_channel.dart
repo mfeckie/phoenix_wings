@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:phoenix_wings/phoenix_push.dart';
-import 'package:phoenix_wings/phoenix_socket.dart';
+import 'package:phoenix_wings/src/phoenix_push.dart';
+import 'package:phoenix_wings/src/phoenix_socket.dart';
 
 enum PhoenixChannelState {
   closed,
@@ -184,7 +184,7 @@ class PhoenixChannel {
         bound.callback(handledPayload, ref, joinRefParam ?? joinRef));
   }
 
-  int on(String event, MessageCallback callback) {
+  int on(String event, PhoenixMessageCallback callback) {
     final ref = _bindingRef++;
     _bindings.add(new PhoenixChannelBinding(event, ref, callback));
     return ref;
@@ -197,7 +197,7 @@ class PhoenixChannel {
         .toList();
   }
 
-  onClose(MessageCallback callback) {
+  onClose(PhoenixMessageCallback callback) {
     on(PhoenixChannelEvents.close, callback);
   }
 
@@ -210,8 +210,8 @@ class PhoenixChannel {
 class PhoenixChannelBinding {
   String event;
   int ref;
-  MessageCallback callback;
+  PhoenixMessageCallback callback;
   PhoenixChannelBinding(this.event, this.ref, this.callback);
 }
 
-typedef MessageCallback (Map payload, String ref, String joinRef);
+typedef void PhoenixMessageCallback (Map payload, String ref, String joinRef);
