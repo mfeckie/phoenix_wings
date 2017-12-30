@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_message.dart';
-/// Represents a message to be sent over the socket
-/// 
-/// Generally not used directly.
 class PhoenixPush {
   bool sent = false;
   Map receivedResp;
@@ -27,7 +24,7 @@ class PhoenixPush {
       callback(receivedResp);
     }
 
-    this.recHooks.add(new PhoenixPushStatus(status, callback));
+    this.recHooks.add(new _PhoenixPushStatus(status, callback));
     return this;
   }
 
@@ -96,8 +93,8 @@ class PhoenixPush {
   }
 }
 
-class PhoenixPushStatus {
+class _PhoenixPushStatus {
   final status;
   final callback;
-  PhoenixPushStatus(this.status, this.callback);
+  _PhoenixPushStatus(this.status, this.callback);
 }

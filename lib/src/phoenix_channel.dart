@@ -239,4 +239,10 @@ class _PhoenixChannelBinding {
   _PhoenixChannelBinding(this.event, this.ref, this.callback);
 }
 
+/// A function that describes how to responsd to a received message
+/// 
+/// ### Example
+///     final PhoenixMessageCallback myCallback = (payload, ref, joinRef) {
+///       return payload;
+///     }
 typedef void PhoenixMessageCallback(Map payload, String ref, String joinRef);
