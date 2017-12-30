@@ -46,7 +46,7 @@ class PhoenixSocket {
   }
 
   WebSocket get conn => _conn;
-  String get endpoint => _endpoint;
+  Uri get endpoint => _endpoint;
   int get ref => _ref;
   bool get isConnected => _conn?.readyState == WebSocket.OPEN;
   int get connectionState => _conn?.readyState ?? WebSocket.CLOSED;
