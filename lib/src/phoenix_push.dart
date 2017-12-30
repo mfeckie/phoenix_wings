@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_message.dart';
-
+/// represents a message to be sent over the socket
 class PhoenixPush {
   bool sent = false;
   Map receivedResp;

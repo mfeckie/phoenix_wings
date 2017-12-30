@@ -8,30 +8,33 @@ import 'package:phoenix_wings/src/phoenix_socket_options.dart';
 
 class PhoenixSocket {
   Uri _endpoint;
-  StateChangeCallbacks _stateChangeCallbacks = new StateChangeCallbacks();
+  _StateChangeCallbacks _stateChangeCallbacks = new _StateChangeCallbacks();
 
   List<int> reconnectAfterMs = const [1000, 2000, 5000, 10000];
-  int ref = 0;
-  int tries = -1;
+  int _ref = 0;
+  int _tries = -1;
   var _encode = PhoenixSerializer.encode;
   var _decode = PhoenixSerializer.decode;
   Timer _heartbeatTimer, _reconnectTimer;
   String _pendingHeartbeatRef;
   List<Function()> _sendBuffer = [];
   List<PhoenixChannel> channels = [];
-  WebSocket conn;
+  WebSocket _conn;
 
   int timeout = 10000;
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
 
+/// Creates an instance of PhoenixSocket
+///
+/// endpoint is the full url to which you wish to connect e.g. `ws://localhost:4000/websocket/socket`
   PhoenixSocket(String endpoint, {socketOptions: PhoenixSocketOptions}) {
     if (socketOptions is PhoenixSocketOptions) {
       _options = socketOptions;
     }
-    buildEndpoint(endpoint);
+    _buildEndpoint(endpoint);
   }
 
-  buildEndpoint(endpoint) {
+  _buildEndpoint(endpoint) {
     var decodedUri = Uri.parse(endpoint);
 
     _endpoint = new Uri(
@@ -42,11 +45,15 @@ class PhoenixSocket {
         queryParameters: _options?.params);
   }
 
-  get endpoint => _endpoint;
-  get isConnected => conn?.readyState == WebSocket.OPEN;
-  get connectionState => conn?.readyState ?? WebSocket.CLOSED;
-  get sendBufferLength => _sendBuffer.length;
+  WebSocket get conn => _conn;
+  String get endpoint => _endpoint;
+  int get ref => _ref;
+  bool get isConnected => _conn?.readyState == WebSocket.OPEN;
+  int get connectionState => _conn?.readyState ?? WebSocket.CLOSED;
+  int get sendBufferLength => _sendBuffer.length;
 
+/// [topic] is the name of the channel you wish to join
+/// [params] are any options parameters you wish to send
   PhoenixChannel channel(String topic, [Map params = const {}]) {
     final channel = new PhoenixChannel(topic, params, this);
     channels.add(channel);
@@ -58,55 +65,63 @@ class PhoenixSocket {
         (chan) => chan.joinRef == channelToRemove.joinRef);
   }
 
+/// Attempts to make a WebSocket connection to your backend
+/// 
+/// If the attempt fails, retries will be triggered at intervals specified
+/// by retryAfterIntervalMS
   connect() async {
-    if (conn != null) {
+    if (_conn != null) {
       return;
     }
 
     try {
-      conn = await WebSocket.connect(_endpoint.toString());
+      _conn = await WebSocket.connect(_endpoint.toString());
       _reconnectTimer?.cancel();
       _reconnectTimer = null;
-      tries = -1;
-      this.onConnOpened();
-      conn.listen(onConnMessage, onDone: reconnect, onError: onConnectionError);
+      _tries = -1;
+      _onConnOpened();
+      _conn.listen(_onConnMessage, onDone: reconnect, onError: _onConnectionError);
     } catch (reason) {
       print(reason);
       reconnect();
     }
   }
 
+/// Add a callback to be executed when the connection is successfully made
   onOpen(Function() callback) => _stateChangeCallbacks.open.add(callback);
 
+/// Add a callback to be executed when the connection is closed
   onClose(Function(dynamic) callback) =>
       _stateChangeCallbacks.close.add(callback);
 
+/// Add a callback to be executed if an error occurs
   onError(Function(dynamic) callback) =>
       _stateChangeCallbacks.error.add(callback);
 
+/// Add a callback for when a message is received
   onMessage(Function(PhoenixMessage) callback) =>
       _stateChangeCallbacks.message.add(callback);
 
-  onConnOpened() async {
-    flushSendBuffer();
+  _onConnOpened() async {
+    _flushSendBuffer();
     _heartbeatTimer = new Timer.periodic(
         new Duration(milliseconds: _options.heartbeatIntervalMs),
         sendHeartbeat);
     _stateChangeCallbacks.open.forEach((cb) => cb());
   }
 
-  onConnClosed(message) async {
+  _onConnClosed(message) async {
     _heartbeatTimer?.cancel();
-    triggerChannelErrors();
+    _triggerChannelErrors();
     _stateChangeCallbacks.close.forEach((cb) => cb(message));
   }
 
-  onConnectionError(error) async {
-    triggerChannelErrors();
+  _onConnectionError(error) async {
+    _triggerChannelErrors();
     _stateChangeCallbacks.error.forEach((cb) => cb(error));
   }
 
-  onConnMessage(String rawJSON) {
+  _onConnMessage(String rawJSON) {
     final message = this._decode(rawJSON);
 
     if (_pendingHeartbeatRef != null && message.ref == _pendingHeartbeatRef) {
@@ -121,39 +136,41 @@ class PhoenixSocket {
     _stateChangeCallbacks.message.forEach((callback) => callback(message));
   }
 
+/// In the event of a network dropout or other error, attempt to reconnect
   reconnect() {
-    onConnClosed(null);
-    conn = null;
+    _onConnClosed(null);
+    _conn = null;
     final reconnectInMs = reconnectTimeout();
     _reconnectTimer =
         new Timer(new Duration(milliseconds: reconnectInMs), connect);
   }
 
   int reconnectTimeout() {
-    if (tries < reconnectAfterMs.length - 1) {
-      tries++;
+    if (_tries < reconnectAfterMs.length - 1) {
+      _tries++;
     }
-    return reconnectAfterMs[tries];
+    return reconnectAfterMs[_tries];
   }
 
+/// Terminates the socket connection with an optional [code]
   disconnect({int code}) async {
     _heartbeatTimer?.cancel();
     if (code != null) {
-      await conn?.close(code);
+      await _conn?.close(code);
     } else {
-      await conn?.close();
+      await _conn?.close();
     }
-    conn = null;
+    _conn = null;
   }
 
-  void flushSendBuffer() {
+  void _flushSendBuffer() {
     if (isConnected) {
       _sendBuffer.forEach((callback) => callback());
       _sendBuffer = [];
     }
   }
 
-  void triggerChannelErrors() {
+  void _triggerChannelErrors() {
     channels.forEach((channel) => channel.trigger(PhoenixChannelEvents.error));
   }
 
@@ -161,14 +178,15 @@ class PhoenixSocket {
     _heartbeatTimer?.cancel();
   }
 
+  /// @nodoc
   void sendHeartbeat(Timer timer) {
-    if (conn?.readyState != WebSocket.OPEN) {
+    if (_conn?.readyState != WebSocket.OPEN) {
       return;
     }
 
     if (_pendingHeartbeatRef != null) {
       _pendingHeartbeatRef = null;
-      conn.close(WebSocketStatus.NORMAL_CLOSURE, "Heartbeat timeout");
+      _conn.close(WebSocketStatus.NORMAL_CLOSURE, "Heartbeat timeout");
       return;
     }
     _pendingHeartbeatRef = makeRef();
@@ -176,10 +194,11 @@ class PhoenixSocket {
     push(new PhoenixMessage.heartbeat(_pendingHeartbeatRef));
   }
 
+/// Pushes a message to the server
   void push(PhoenixMessage msg) {
     final callback = () {
       final encoded = _encode(msg);
-      conn.add(encoded);
+      _conn.add(encoded);
     };
 
     if (isConnected) {
@@ -190,17 +209,17 @@ class PhoenixSocket {
   }
 
   String makeRef() {
-    ref++;
-    return "$ref";
+    _ref++;
+    return "$_ref";
   }
 }
 
-class StateChangeCallbacks {
+class _StateChangeCallbacks {
   List<Function()> open;
   List<Function(dynamic error)> close, error;
   List<Function(PhoenixMessage)> message;
 
-  StateChangeCallbacks() {
+  _StateChangeCallbacks() {
     this.open = [];
     this.close = [];
     this.error = [];

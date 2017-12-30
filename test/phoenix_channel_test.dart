@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_message.dart';
 import 'package:phoenix_wings/src/phoenix_serializer.dart';
@@ -71,6 +72,7 @@ void main() {
     final message = PhoenixSerializer.encode(new PhoenixMessage(
         "1", "ref", "topic", "event", {"payload": "payload"}));
 
+    await socket.connect();
     final targetChannel = socket.channel("topic");
     var callbackInvoked = false;
     var calledWithPayload;
@@ -85,7 +87,9 @@ void main() {
       otherCallbackInvoked = true;
     });
 
-    socket.onConnMessage(message);
+    server.sendMessage(message);
+
+    await new Future<Null>.delayed(new Duration(milliseconds: 100));
 
     expect(callbackInvoked, true);
     expect(calledWithPayload, {'payload': 'payload'});

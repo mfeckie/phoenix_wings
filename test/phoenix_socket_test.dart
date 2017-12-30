@@ -69,13 +69,16 @@ void main() {
       expect(callbackCalled, true);
     });
 
-    test("Triggers callbacks on message", () {
+    test("Triggers callbacks on message", () async {
       final message = PhoenixSerializer
           .encode(new PhoenixMessage(null, "ref", "topic", "event", {}));
       PhoenixMessage receivedMessage;
       socket.onMessage((msg) => receivedMessage = msg);
 
-      socket.onConnMessage(message);
+      await socket.connect();
+
+      server.sendMessage(message);
+      await new Future<Null>.delayed(new Duration(milliseconds: 100));
 
       expect(receivedMessage.ref, "ref");
       expect(receivedMessage.joinRef, null);
@@ -95,18 +98,6 @@ void main() {
 
       await new Future<Null>.delayed(new Duration(milliseconds: 10));
 
-      expect(callbackCalled, true);
-    });
-
-    test("Triggers channel errors", () async {
-      final channel = socket.channel("topic");
-      var callbackCalled = false;
-      channel.onError((a, b, c) {
-        callbackCalled = true;
-      });
-      socket.onConnectionError(PhoenixChannelEvents.error);
-
-      await new Future<Null>.delayed(new Duration(milliseconds: 100));
       expect(callbackCalled, true);
     });
   });

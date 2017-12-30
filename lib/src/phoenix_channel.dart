@@ -27,7 +27,7 @@ class PhoenixChannel {
   String topic;
   Map params = {};
   PhoenixSocket socket;
-  List<PhoenixChannelBinding> _bindings = [];
+  List<_PhoenixChannelBinding> _bindings = [];
   List _pushBuffer = [];
   int _bindingRef = 0;
   var _joinedOnce = false;
@@ -186,7 +186,7 @@ class PhoenixChannel {
 
   int on(String event, PhoenixMessageCallback callback) {
     final ref = _bindingRef++;
-    _bindings.add(new PhoenixChannelBinding(event, ref, callback));
+    _bindings.add(new _PhoenixChannelBinding(event, ref, callback));
     return ref;
   }
 
@@ -207,11 +207,11 @@ class PhoenixChannel {
   onMessage(event, payload, ref) => payload;
 }
 
-class PhoenixChannelBinding {
+class _PhoenixChannelBinding {
   String event;
   int ref;
   PhoenixMessageCallback callback;
-  PhoenixChannelBinding(this.event, this.ref, this.callback);
+  _PhoenixChannelBinding(this.event, this.ref, this.callback);
 }
 
 typedef void PhoenixMessageCallback (Map payload, String ref, String joinRef);

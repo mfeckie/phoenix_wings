@@ -2,7 +2,9 @@
 ///
 /// A single connection is established to the server and
 /// channels are multiplexed over the connection.
+/// 
 /// Connect to the server using the [PhoenixSocket] class
+/// 
 
 export 'src/phoenix_channel.dart';
 export 'src/phoenix_message.dart';
