@@ -21,7 +21,6 @@ class PhoenixSocket {
   List<PhoenixChannel> channels = [];
   WebSocket conn;
 
-  // Optionals
   int timeout = 10000;
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
 
