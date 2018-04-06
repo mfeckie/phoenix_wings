@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'package:phoenix_wings/src/phoenix_channel.dart';
-import 'package:phoenix_wings/src/phoenix_message.dart';
-import 'package:phoenix_wings/src/phoenix_serializer.dart';
+
 import 'package:test/test.dart';
-import 'package:phoenix_wings/src/phoenix_socket.dart';
+import 'package:phoenix_wings/io.dart';
 
 import 'mock_server.dart';
 
@@ -14,7 +12,7 @@ void main() {
   setUp(() async {
     server = new MockServer(4001);
     await server.start();
-    socket = new PhoenixSocket("ws://localhost:4001/socket/websocket");
+    socket = new PhoenixIoSocket("ws://localhost:4001/socket/websocket");
   });
 
   tearDown(() async {

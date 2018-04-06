@@ -1,23 +1,21 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:phoenix_wings/src/phoenix_channel.dart';
-import 'package:phoenix_wings/src/phoenix_message.dart';
-import 'package:phoenix_wings/src/phoenix_serializer.dart';
-import 'package:phoenix_wings/src/phoenix_socket_options.dart';
 import 'package:test/test.dart';
-import 'package:phoenix_wings/src/phoenix_socket.dart';
+
+import 'package:phoenix_wings/io.dart';
 
 import 'mock_server.dart';
 
-PhoenixSocket socket;
+
+PhoenixIoSocket socket;
 MockServer server;
 
 void main() {
   setUp(() async {
     server = new MockServer(4002);
     await server.start();
-    socket = new PhoenixSocket("ws://localhost:4002/socket/websocket");
+    socket = new PhoenixIoSocket("ws://localhost:4002/socket/websocket");
   });
   tearDown(() async {
     await server.shutdown();
@@ -27,7 +25,7 @@ void main() {
     final endpoint = "ws://localhost:4002/socket";
     final options = new PhoenixSocketOptions();
     options.params = {"stuff": "things"};
-    final socket = new PhoenixSocket(endpoint, socketOptions: options);
+    final socket = new PhoenixIoSocket(endpoint, socketOptions: options);
     expect(socket.endpoint.queryParameters, options.params);
   });
 
@@ -94,6 +92,7 @@ void main() {
       });
 
       await socket.connect();
+      expect(socket.isConnected, true);
       await server.testDisconnect();
 
       await new Future<Null>.delayed(new Duration(milliseconds: 10));
@@ -106,7 +105,7 @@ void main() {
     test("Sends heartbeat", () async {
       final options = new PhoenixSocketOptions();
       options.heartbeatIntervalMs = 5;
-      final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
+      final socket = new PhoenixIoSocket("ws://localhost:4002/socket/websocket",
           socketOptions: options);
       await socket.connect();
 
@@ -133,7 +132,7 @@ void main() {
     test("pushes heartbeat data when connected", () async {
       final options = new PhoenixSocketOptions();
       options.heartbeatIntervalMs = 5;
-      final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
+      final socket = new PhoenixIoSocket("ws://localhost:4002/socket/websocket",
           socketOptions: options);
       await socket.connect();
       await new Future<Null>.delayed(new Duration(milliseconds: 15));
@@ -162,6 +161,8 @@ void main() {
       await socket.disconnect();
 
       await new Future<Null>.delayed(new Duration(milliseconds: 100));
+      expect(socket.isConnected, false);
+
       msg.ref = "afterClose";
       socket.push(msg);
       expect(socket.sendBufferLength, 1);
