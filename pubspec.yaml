@@ -10,3 +10,4 @@ dev_dependencies:
   dartdoc: "^0.15.0+1"
   test: "^0.12.29+1"
   mockito: "^2.2.1"
+  stream_channel: "^1.6.4"

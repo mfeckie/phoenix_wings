@@ -1,3 +1,5 @@
+@TestOn("vm")
+
 import 'dart:async';
 
 import 'package:phoenix_wings/src/phoenix_channel.dart';

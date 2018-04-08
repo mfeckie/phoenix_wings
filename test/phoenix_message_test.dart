@@ -1,3 +1,5 @@
+@TestOn("vm")
+
 import 'package:test/test.dart';
 import 'package:phoenix_wings/src/phoenix_message.dart';
 
