@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:phoenix_wings/src/phoenix_connection.dart';
 
 
+/// PhoenixIoConnection handles the creation and use
+/// of the underlying websocket connection on browser platforms.
 class PhoenixIoConnection extends PhoenixConnection {
   Future<WebSocket> _connFuture;
   WebSocket _conn;

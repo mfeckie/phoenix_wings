@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:phoenix_wings/src/phoenix_connection.dart';
 
 
+/// PhoenixHtmlConnection handles the creation and use
+/// of the underlying websocket connection on browser platforms.
 class PhoenixHtmlConnection extends PhoenixConnection {
   final String _endpoint;
 
