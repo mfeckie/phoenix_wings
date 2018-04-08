@@ -86,7 +86,7 @@ abstract class PhoenixSocket {
         await _conn.waitForConnection();
       } catch (reason) {
         _conn = null;
-        print("WebSocket connection failed!: $reason");
+        print("WebSocket connection to ${_endpoint.toString()} failed!: $reason");
 
         tries += 1;
         var wait = reconnectAfterMs[min(tries, reconnectAfterMs.length - 1)];
@@ -158,18 +158,17 @@ abstract class PhoenixSocket {
   reconnect() {
     _onConnClosed(null);
     _conn = null;
-    if (_reconnect) {
-      print("reconnecting");
-      connect();
-    }
+    if (_reconnect) connect();
   }
 
 /// Terminates the socket connection with an optional [code]
-  disconnect({int code}) async {
+  disconnect({int code: PhoenixConnection.CLOSE_NORMAL}) {
     _heartbeatTimer?.cancel();
     _reconnect = false;
 
-    await _conn?.close();
+    if (_conn == null) return;
+
+    _conn.close(code);
     _conn = null;
   }
 
