@@ -82,7 +82,8 @@ abstract class PhoenixSocket {
 
     for (int tries = 0; _conn == null; tries += 1) {
       try {
-        _conn = await createConnection(_endpoint.toString()).waitForConnection();
+        _conn = createConnection(_endpoint.toString());
+        await _conn.waitForConnection();
       } catch (reason) {
         _conn = null;
         print("WebSocket connection failed!: $reason");
@@ -97,11 +98,9 @@ abstract class PhoenixSocket {
       _reconnect = true;
       _onConnOpened();
       _conn
-        ..onClose(() {
-          reconnect();
-        })
-        ..onMessage((String m) { _onConnMessage(m); })
-        ..onError((e) { _onConnectionError(e); })
+        ..onClose(reconnect)
+        ..onMessage(_onConnMessage)
+        ..onError(_onConnectionError)
         ;
     }
   }
@@ -129,18 +128,18 @@ abstract class PhoenixSocket {
     _stateChangeCallbacks.open.forEach((cb) => cb());
   }
 
-  _onConnClosed(message) async {
+  void _onConnClosed(message) {
     _heartbeatTimer?.cancel();
     _triggerChannelErrors();
     _stateChangeCallbacks.close.forEach((cb) => cb(message));
   }
 
-  _onConnectionError(error) async {
+  void _onConnectionError(error) {
     _triggerChannelErrors();
     _stateChangeCallbacks.error.forEach((cb) => cb(error));
   }
 
-  _onConnMessage(String rawJSON) {
+  void _onConnMessage(String rawJSON) {
     final message = this._decode(rawJSON);
 
     if (_pendingHeartbeatRef != null && message.ref == _pendingHeartbeatRef) {

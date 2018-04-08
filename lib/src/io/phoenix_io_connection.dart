@@ -6,6 +6,7 @@ import 'package:phoenix_wings/src/phoenix_connection.dart';
 
 
 class PhoenixIoConnection extends PhoenixConnection {
+  Future<WebSocket> _connFuture;
   WebSocket _conn;
   final String _endpoint;
 
@@ -15,11 +16,16 @@ class PhoenixIoConnection extends PhoenixConnection {
   Completer _closed = new Completer();
 
   bool get isConnected => _conn?.readyState == WebSocket.OPEN;
+  int get readyState => _conn.readyState ?? WebSocket.CLOSED;
 
   PhoenixIoConnection(this._endpoint);
 
+  // waitForConnection is idempotent, it can be called many
+  // times before or after the connection is established
   Future<PhoenixConnection> waitForConnection() async {
-    _conn = await WebSocket.connect(_endpoint);
+    _connFuture ??= WebSocket.connect(_endpoint);
+    _conn = await _connFuture;
+
     return this;
   }
 
@@ -42,8 +48,7 @@ class PhoenixIoConnection extends PhoenixConnection {
     return e as String;
   }
 
-  void onMessage(void callback(String)) {
-    final doneStream = new StreamController();
+  void onMessage(void callback(String m)) {
     _conn.listen((e) {
       callback(_messageToString(e));
     }, onDone: () { _closed.complete(); });

@@ -5,21 +5,25 @@ import 'package:phoenix_wings/src/phoenix_connection.dart';
 
 
 class PhoenixHtmlConnection extends PhoenixConnection {
-  WebSocket _conn;
   final String _endpoint;
+
+  WebSocket _conn;
+  Future _opened;
 
   bool get isConnected => _conn.readyState == WebSocket.OPEN;
   int get readyState => _conn.readyState ?? WebSocket.CLOSED;
 
   PhoenixHtmlConnection(this._endpoint) {
     _conn = new WebSocket(_endpoint);
+    _opened = _conn.onOpen.first;
   }
 
+  // waitForConnection is idempotent, it can be called many
+  // times before or after the connection is established
   Future<PhoenixConnection> waitForConnection() async {
     if (_conn.readyState == WebSocket.OPEN) return this;
-    if (_conn.readyState != WebSocket.CONNECTING) throw new StateError("socket not open, not connecting");
 
-    await _conn.onOpen.first;
+    await _opened;
     return this;
   }
 
@@ -27,8 +31,8 @@ class PhoenixHtmlConnection extends PhoenixConnection {
   void send(String data) => _conn.sendString(data);
 
   void onClose(void callback()) => _conn.onClose.listen((e) { callback(); });
-  void onError(void callback(Event)) => _conn.onError.listen((e) { callback(e); });
-  void onMessage(void callback(String)) => _conn.onMessage.listen((e) { callback(_messageToString(e)); } );
+  void onError(void callback(err)) => _conn.onError.listen((e) { callback(e); });
+  void onMessage(void callback(String m)) => _conn.onMessage.listen((e) { callback(_messageToString(e)); } );
 
   String _messageToString(MessageEvent e) {
     // TODO: what are the types here?
