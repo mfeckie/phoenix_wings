@@ -23,7 +23,9 @@ class PhoenixHtmlConnection extends PhoenixConnection {
   // waitForConnection is idempotent, it can be called many
   // times before or after the connection is established
   Future<PhoenixConnection> waitForConnection() async {
-    if (_conn.readyState == WebSocket.OPEN) return this;
+    if (_conn.readyState == WebSocket.OPEN) {
+      return this;
+    }
 
     await _opened;
     return this;

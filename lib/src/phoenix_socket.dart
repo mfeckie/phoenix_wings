@@ -158,7 +158,9 @@ abstract class PhoenixSocket {
   reconnect() {
     _onConnClosed(null);
     _conn = null;
-    if (_reconnect) connect();
+    if (_reconnect) {
+      connect();
+    }
   }
 
 /// Terminates the socket connection with an optional [code]
@@ -166,7 +168,9 @@ abstract class PhoenixSocket {
     _heartbeatTimer?.cancel();
     _reconnect = false;
 
-    if (_conn == null) return;
+    if (_conn == null) {
+      return;
+    }
 
     _conn.close(code);
     _conn = null;

@@ -79,6 +79,19 @@ class MockServer {
   }
 }
 
+
+
+// RemoteMockServer wraps a MockServer running in a separate isolate.
+// This is used for hybrid tests where the test code and mock server may
+// be running in different processes (eg: Browser/VM).
+//
+// Communiation is done by message passing with a simple protocol.
+//
+//   String -> a command
+//   [String, dynamic] -> a command/result with one argument
+
+
+
 class RemoteMockServer {
   final StreamChannel _channel;
   final Stream _serverMessages;
@@ -90,24 +103,22 @@ class RemoteMockServer {
     : this.forChannel(spawnHybridUri("mock_server.dart")) ;
 
   Future<int> get heartbeat async {
-    final result = _serverMessages.
-      firstWhere((e) => (e is List && e[0] == "heartbeat"));
-    _channel.sink.add("get_heartbeat");
-    return (await result)[1] as int;
+    final response = _listResponse("heartbeat");
+    _sendCommand("get_heartbeat");
+    return (await response)[1] as int;
   }
 
   Future<PhoenixMessage> get heartbeatMessageReceived async {
-    final result = _serverMessages.
-      firstWhere((e) => (e is List && e[0] == "heartbeat_message"));
-    _channel.sink.add("get_heartbeat_message");
+    final response = _listResponse("heartbeat_message");
+    _sendCommand("get_heartbeat_message");
 
-    return PhoenixSerializer.decode((await result)[1] as String);
+    final rawMessage = (await response)[1];
+    return PhoenixSerializer.decode(rawMessage as String);
   }
 
   testDisconnect() async {
-    final disconnected = _serverMessages.
-      firstWhere((e) => (e is String && e == "test_disconnect returned"));
-    _channel.sink.add("test_disconnect");
+    final disconnected = _stringResponse("test_disconnect returned");
+    _sendCommand("test_disconnect");
     await disconnected;
   }
 
@@ -117,45 +128,98 @@ class RemoteMockServer {
   }
 
   sendMessage(String message) {
-    _channel.sink.add(["send", message]);
+    _sendCommand("send", message);
   }
 
   waitForServer() async {
     // send a ping and wait for pong, which will only
     // be sent once the server is up
-    final next_pong = _serverMessages.
-      firstWhere((e) => (e is String && e == "pong"));
-    _channel.sink.add("ping");
+    final next_pong = _stringResponse("pong");
+    _sendCommand("ping");
     await next_pong;
   }
 
-  print(String s) {
-    _channel.sink.add(["print", s]);
+  // print a string on the VM proccess, helpful for debugging
+  // browser tests.
+  remotePrint(String s) {
+    _sendCommand("print");
+  }
+
+  void _sendCommand(String command, [dynamic param]) {
+    if (param == null) {
+      _channel.sink.add(command);
+    } else {
+      _channel.sink.add([command, param]);
+    }
+  }
+
+  // wait for a string response from the server
+  Future<String> _stringResponse(String command) {
+    final response = _serverMessages.
+      firstWhere((message) => (message is String && message == command));
+    return response as Future<String>;
+  }
+
+  // wait for a list response from the server
+  Future<List> _listResponse(String command) async {
+    final response = _serverMessages.
+      firstWhere((message) => (message is List && message[0] == command));
+
+    return response as Future<List>;
+  }
+}
+
+handleStringMessage(MockServer server, StreamChannel channel, String message) async {
+  switch (message) {
+    case "test_disconnect":
+      await server.testDisconnect();
+      channel.sink.add("test_disconnect returned");
+      break;
+    case "shutdown":
+      server.shutdown();
+      break;
+    case "get_heartbeat":
+      channel.sink.add(["heartbeat", server.heartbeat]);
+      break;
+    case "get_heartbeat_message":
+      channel.sink.add(["heartbeat_message", server.heartbeatMessageReceived]);
+      break;
+    case "ping":
+      channel.sink.add("pong");
+      break;
+    default:
+      throw new UnsupportedError("message not supported: $message");
+  }
+}
+
+
+handleListMessage(MockServer server, List message) {
+  final command = message[0];
+  final param = message[1];
+
+  switch (command) {
+    case "send":
+      server.sendMessage(param);
+      break;
+    case "print":
+      print(param);
+      break;
+    default:
+      throw new UnsupportedError("message not supported: $message");
   }
 }
 
 
 // used for hybrid tests
 hybridMain(StreamChannel channel) async {
-  var server = new MockServer(4002);
+  final server = new MockServer(4002);
   await server.start();
 
   channel.stream.listen((message) async {
-    if (message is String && message == "test_disconnect") {
-      await server.testDisconnect();
-      channel.sink.add("test_disconnect returned");
-    } else if (message is String && message == "shutdown") {
-      server.shutdown();
-    } else if (message is String && message == "get_heartbeat") {
-      channel.sink.add(["heartbeat", server.heartbeat]);
-    } else if (message is String && message == "get_heartbeat_message") {
-      channel.sink.add(["heartbeat_message", server.heartbeatMessageReceived]);
-    } else if (message is String && message == "ping") {
-      channel.sink.add("pong");
-    } else if (message is List && message.length == 2 && message[0] == "send") {
-      server.sendMessage(message[1]);
-    } else if (message is List && message.length == 2 && message[0] == "print") {
-      print(message[1]);
+    if (message is String) {
+      await handleStringMessage(server, channel, message);
+    } else if (message is List) {
+      handleListMessage(server, message);
     } else {
       throw new UnsupportedError("message not supported: $message");
     }
