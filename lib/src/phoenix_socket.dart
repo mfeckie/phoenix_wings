@@ -7,7 +7,9 @@ import 'package:phoenix_wings/src/phoenix_message.dart';
 import 'package:phoenix_wings/src/phoenix_serializer.dart';
 import 'package:phoenix_wings/src/phoenix_socket_options.dart';
 
-abstract class PhoenixSocket {
+import 'package:phoenix_wings/src/phoenix_io_connection.dart';
+
+class PhoenixSocket {
   Uri _endpoint;
   _StateChangeCallbacks _stateChangeCallbacks = new _StateChangeCallbacks();
 
@@ -28,14 +30,20 @@ abstract class PhoenixSocket {
 
   int timeout = 10000;
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
+  PhoenixConnectionProvider _connectionProvider = PhoenixIoConnection.provider;
 
 /// Creates an instance of PhoenixSocket
 ///
 /// endpoint is the full url to which you wish to connect e.g. `ws://localhost:4000/websocket/socket`
-  PhoenixSocket(String endpoint, {socketOptions: PhoenixSocketOptions}) {
+  PhoenixSocket(String endpoint, {socketOptions: PhoenixSocketOptions, connectionProvider: PhoenixConnectionProvider}) {
     if (socketOptions is PhoenixSocketOptions) {
       _options = socketOptions;
     }
+
+    if (connectionProvider is PhoenixConnectionProvider) {
+      _connectionProvider = connectionProvider;
+    }
+
     _buildEndpoint(endpoint);
   }
 
@@ -69,8 +77,6 @@ abstract class PhoenixSocket {
         (chan) => chan.joinRef == channelToRemove.joinRef);
   }
 
-  PhoenixConnection createConnection(String endpoint);
-
 /// Attempts to make a WebSocket connection to your backend
 /// 
 /// If the attempt fails, retries will be triggered at intervals specified
@@ -82,7 +88,7 @@ abstract class PhoenixSocket {
 
     for (int tries = 0; _conn == null; tries += 1) {
       try {
-        _conn = createConnection(_endpoint.toString());
+        _conn = _connectionProvider(_endpoint.toString());
         await _conn.waitForConnection();
       } catch (reason) {
         _conn = null;

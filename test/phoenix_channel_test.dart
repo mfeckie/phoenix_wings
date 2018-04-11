@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:test/test.dart';
-import 'package:phoenix_wings/io.dart';
+import 'package:phoenix_wings/phoenix_wings.dart';
 
 import 'mock_server.dart';
 
@@ -14,7 +14,7 @@ void main() {
   setUp(() async {
     server = new MockServer(4001);
     await server.start();
-    socket = new PhoenixIoSocket("ws://localhost:4001/socket/websocket");
+    socket = new PhoenixSocket("ws://localhost:4001/socket/websocket");
   });
 
   tearDown(() async {

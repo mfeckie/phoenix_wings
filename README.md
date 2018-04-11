@@ -11,10 +11,12 @@ Much of the library is the same whether your code is running in the VM/Flutter o
 ### Import & Connection (VM/Flutter)
 
 ```dart
-import 'package:phoenix_wings/io.dart';
+import 'package:phoenix_wings/phoenix_wings.dart';
 
 
-final socket = new PhoenixIoSocket("ws://localhost:4000/websocket/socket");
+final socket = new PhoenixSocket("ws://localhost:4000/websocket/socket");
+
+// equivalent to passing connectionProvider: PhoenixIoConnection.provider
 
 ```
 
@@ -24,14 +26,14 @@ final socket = new PhoenixIoSocket("ws://localhost:4000/websocket/socket");
 import 'package:phoenix_wings/html.dart';
 
 
-final socket = new PhoenixHtmlSocket("ws://localhost:4000/websocket/socket");
+final socket = new PhoenixSocket("ws://localhost:4000/websocket/socket", connectionProvider: PhoenixHtmlConnection.provider);
 
 ```
 
 ### Common Usage
 
-```
-socket.connect();
+```dart
+await socket.connect();
 
 final chatChannel = socket.channel("room:chat", {"id": "myId"});
 
@@ -44,7 +46,7 @@ chatChannel.join();
 
 ## Testing
 
-Most of the tests are run on the VM. However, the PhoenixHtmlSocket tests must run in a browser. You can use the following commands to run all tests for both platforms:
+Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. You can use the following commands to run all tests for both platforms:
 
 
         # using firefox

@@ -18,7 +18,11 @@ class PhoenixIoConnection extends PhoenixConnection {
   Completer _closed = new Completer();
 
   bool get isConnected => _conn?.readyState == WebSocket.OPEN;
-  int get readyState => _conn.readyState ?? WebSocket.CLOSED;
+  int get readyState => _conn?.readyState ?? WebSocket.CLOSED;
+
+  static PhoenixConnection provider(String endpoint) {
+    return new PhoenixIoConnection(endpoint);
+  }
 
   PhoenixIoConnection(this._endpoint);
 
@@ -31,7 +35,7 @@ class PhoenixIoConnection extends PhoenixConnection {
     return this;
   }
 
-  void close([int code, String reason]) => _conn.close(code, reason);
+  void close([int code, String reason]) => _conn?.close(code, reason);
   void send(String data) => _conn.add(data);
 
   void onClose(void callback()) {

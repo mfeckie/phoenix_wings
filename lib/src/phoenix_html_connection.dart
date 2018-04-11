@@ -15,6 +15,10 @@ class PhoenixHtmlConnection extends PhoenixConnection {
   bool get isConnected => _conn.readyState == WebSocket.OPEN;
   int get readyState => _conn.readyState ?? WebSocket.CLOSED;
 
+  static PhoenixConnection provider(String endpoint) {
+    return new PhoenixHtmlConnection(endpoint);
+  }
+
   PhoenixHtmlConnection(this._endpoint) {
     _conn = new WebSocket(_endpoint);
     _opened = _conn.onOpen.first;
