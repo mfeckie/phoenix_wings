@@ -66,7 +66,7 @@ class PhoenixSocket {
   }
 
 /// Attempts to make a WebSocket connection to your backend
-/// 
+///
 /// If the attempt fails, retries will be triggered at intervals specified
 /// by retryAfterIntervalMS
   connect() async {
@@ -155,6 +155,7 @@ class PhoenixSocket {
 /// Terminates the socket connection with an optional [code]
   disconnect({int code}) async {
     _heartbeatTimer?.cancel();
+    _reconnectTimer?.cancel();
     if (code != null) {
       await _conn?.close(code);
     } else {
