@@ -7,13 +7,13 @@ class PhoenixMessage {
 
 /// Convenience function for decoding received Phoenix messages
   static PhoenixMessage decode(rawPayload) {
-    final decoded = JSON.decode(rawPayload);
+    final decoded = json.decode(rawPayload);
     return new PhoenixMessage(
         decoded[0], decoded[1], decoded[2], decoded[3], decoded[4]);
   }
 
   String toJSON() {
-    return JSON.encode([joinRef, ref, topic, event, payload]);
+    return json.encode([joinRef, ref, topic, event, payload]);
   }
 
 /// Constructor for a hearbeat message.
