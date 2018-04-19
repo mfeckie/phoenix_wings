@@ -11,7 +11,7 @@ enum PhoenixChannelState {
   leaving,
 }
 
-class _PhoenixChannelEvents {
+class PhoenixChannelEvents {
   static const close = "phx_close";
   static const error = "phx_error";
   static const join = "phx_join";
@@ -43,7 +43,7 @@ class PhoenixChannel {
   ///
   PhoenixChannel(this._topic, this._params, this.socket) {
     _joinPush =
-        new PhoenixPush(this, _PhoenixChannelEvents.join, _params, timeout);
+        new PhoenixPush(this, PhoenixChannelEvents.join, _params, timeout);
 
     _joinPush.receive("ok", (msg) {
       _state = PhoenixChannelState.joined;
@@ -56,7 +56,7 @@ class PhoenixChannel {
         return;
       }
       final leavePush =
-          new PhoenixPush(this, _PhoenixChannelEvents.leave, {}, timeout);
+          new PhoenixPush(this, PhoenixChannelEvents.leave, {}, timeout);
       leavePush.send();
       _state = PhoenixChannelState.errored;
       _joinPush.reset();
@@ -69,7 +69,7 @@ class PhoenixChannel {
       socket.remove(this);
     });
 
-    on(_PhoenixChannelEvents.reply, (payload, ref, _joinRef) {
+    on(PhoenixChannelEvents.reply, (payload, ref, _joinRef) {
       trigger(replyEventName(ref), payload);
     });
 
@@ -119,7 +119,7 @@ class PhoenixChannel {
     if (_topic != topicParam) {
       return false;
     }
-    final isLifecycleEvent = _PhoenixChannelEvents.lifecycleEvent(event);
+    final isLifecycleEvent = PhoenixChannelEvents.lifecycleEvent(event);
     if (joinRef != null && isLifecycleEvent && (joinRefParam != joinRef)) {
       return false;
     }
@@ -127,9 +127,9 @@ class PhoenixChannel {
   }
 
   /// Attempts to join the Phoenix Channel
-  /// 
+  ///
   /// Attempting to join a channel more than once is an error.
-  /// 
+  ///
   /// If the channel join attempt fails, it will attempt to rejoin
   /// based on the timeout settings of the [PhoenixSocket]
   PhoenixPush join() {
@@ -143,17 +143,17 @@ class PhoenixChannel {
   }
 
   /// Leaves the channel
-  /// 
+  ///
   /// Notifies the server and triggers onCloseCallback(s)
   PhoenixPush leave() {
     _state = PhoenixChannelState.leaving;
 
     Function onCloseCallback = (_) {
-      trigger(_PhoenixChannelEvents.close);
+      trigger(PhoenixChannelEvents.close);
     };
 
     final leavePush =
-        new PhoenixPush(this, _PhoenixChannelEvents.leave, {}, timeout);
+        new PhoenixPush(this, PhoenixChannelEvents.leave, {}, timeout);
 
     leavePush
         .receive("ok", onCloseCallback)
@@ -222,11 +222,11 @@ class PhoenixChannel {
 
   /// Adds a callback to be triggered on channel close
   onClose(PhoenixMessageCallback callback) {
-    on(_PhoenixChannelEvents.close, callback);
+    on(PhoenixChannelEvents.close, callback);
   }
 
   /// Adds a callback to be trigger on channel error
-  onError(callback) => on(_PhoenixChannelEvents.error,
+  onError(callback) => on(PhoenixChannelEvents.error,
       (payload, ref, joinRef) => callback(payload, ref, joinRef));
 
   onMessage(event, payload, ref) => payload;
@@ -240,7 +240,7 @@ class _PhoenixChannelBinding {
 }
 
 /// A function that describes how to responsd to a received message
-/// 
+///
 /// ### Example
 ///     final PhoenixMessageCallback myCallback = (payload, ref, joinRef) {
 ///       return payload;
