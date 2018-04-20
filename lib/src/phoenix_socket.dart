@@ -155,6 +155,7 @@ class PhoenixSocket {
 /// Terminates the socket connection with an optional [code]
   disconnect({int code}) async {
     _heartbeatTimer?.cancel();
+    _reconnectTimer?.cancel();
     if (code != null) {
       await _conn?.close(code);
     } else {
