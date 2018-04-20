@@ -66,7 +66,7 @@ class PhoenixSocket {
   }
 
 /// Attempts to make a WebSocket connection to your backend
-/// 
+///
 /// If the attempt fails, retries will be triggered at intervals specified
 /// by retryAfterIntervalMS
   connect() async {
@@ -121,7 +121,7 @@ class PhoenixSocket {
     _stateChangeCallbacks.error.forEach((cb) => cb(error));
   }
 
-  _onConnMessage(String rawJSON) {
+  _onConnMessage(dynamic rawJSON) {
     final message = this._decode(rawJSON);
 
     if (_pendingHeartbeatRef != null && message.ref == _pendingHeartbeatRef) {
