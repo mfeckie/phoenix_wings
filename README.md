@@ -1,3 +1,7 @@
+[ ![Codeship Status for mfeckie/phoenix_wings](https://app.codeship.com/projects/fd20f500-3e14-0136-9f20-1e75e7e00ec5/status?branch=master)](https://app.codeship.com/projects/290729)
+
+[![Pub](https://img.shields.io/pub/v/phoenix_wings.svg?style=flat-square)](https://github.com/mfeckie/phoenix_wings)
+
 # phoenix_wings.dart
 
 A Phoenix Channel implementation for Dart
@@ -5,6 +9,8 @@ A Phoenix Channel implementation for Dart
 Attempts to feature match the Javascript implementation found at [phoenix.js](https://github.com/phoenixframework/phoenix/blob/master/assets/js/phoenix.js)
 
 ## Usage
+
+[API Documentation](https://pub.dartlang.org/documentation/phoenix_wings/latest/)
 
 Much of the library is the same whether your code is running in the VM/Flutter or in a browser. Due to differences between the two platforms, the connection setup differs slightly.
 
