@@ -7,7 +7,6 @@ import 'package:test/test.dart';
 
 import 'package:phoenix_wings/phoenix_wings.dart';
 
-
 class MockServer {
   HttpServer _server;
   WebSocket _socket;
@@ -35,7 +34,9 @@ class MockServer {
           if (message.event == 'test-push') {
             handleTestPush();
           }
-        }, onError: (msg) { print("mock server socket error! $msg"); });
+        }, onError: (msg) {
+          print("mock server socket error! $msg");
+        });
       } else {
         req.response
           ..write("did not understand request: ${req.uri.path}")
@@ -79,8 +80,6 @@ class MockServer {
   }
 }
 
-
-
 // RemoteMockServer wraps a MockServer running in a separate isolate.
 // This is used for hybrid tests where the test code and mock server may
 // be running in different processes (eg: Browser/VM).
@@ -90,17 +89,15 @@ class MockServer {
 //   String -> a command
 //   [String, dynamic] -> a command/result with one argument
 
-
-
 class RemoteMockServer {
   final StreamChannel _channel;
   final Stream _serverMessages;
 
   RemoteMockServer.forChannel(this._channel)
-    : _serverMessages = _channel.stream.asBroadcastStream();
+      : _serverMessages = _channel.stream.asBroadcastStream();
 
   RemoteMockServer.hybrid()
-    : this.forChannel(spawnHybridUri("mock_server.dart")) ;
+      : this.forChannel(spawnHybridUri("mock_server.dart"));
 
   Future<int> get heartbeat async {
     final response = _listResponse("heartbeat");
@@ -155,21 +152,22 @@ class RemoteMockServer {
 
   // wait for a string response from the server
   Future<String> _stringResponse(String command) {
-    final response = _serverMessages.
-      firstWhere((message) => (message is String && message == command));
+    final response = _serverMessages
+        .firstWhere((message) => (message is String && message == command));
     return response as Future<String>;
   }
 
   // wait for a list response from the server
   Future<List> _listResponse(String command) async {
-    final response = _serverMessages.
-      firstWhere((message) => (message is List && message[0] == command));
+    final response = _serverMessages
+        .firstWhere((message) => (message is List && message[0] == command));
 
     return response as Future<List>;
   }
 }
 
-handleStringMessage(MockServer server, StreamChannel channel, String message) async {
+handleStringMessage(
+    MockServer server, StreamChannel channel, String message) async {
   switch (message) {
     case "test_disconnect":
       await server.testDisconnect();
@@ -192,7 +190,6 @@ handleStringMessage(MockServer server, StreamChannel channel, String message) as
   }
 }
 
-
 handleListMessage(MockServer server, List message) {
   final command = message[0];
   final param = message[1];
@@ -208,7 +205,6 @@ handleListMessage(MockServer server, List message) {
       throw new UnsupportedError("message not supported: $message");
   }
 }
-
 
 // used for hybrid tests
 hybridMain(StreamChannel channel) async {

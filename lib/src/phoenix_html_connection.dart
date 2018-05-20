@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:phoenix_wings/src/phoenix_connection.dart';
 
-
 /// PhoenixHtmlConnection handles the creation and use
 /// of the underlying websocket connection on browser platforms.
 class PhoenixHtmlConnection extends PhoenixConnection {
@@ -38,9 +37,15 @@ class PhoenixHtmlConnection extends PhoenixConnection {
   void close([int code, String reason]) => _conn.close(code, reason);
   void send(String data) => _conn.sendString(data);
 
-  void onClose(void callback()) => _conn.onClose.listen((e) { callback(); });
-  void onError(void callback(err)) => _conn.onError.listen((e) { callback(e); });
-  void onMessage(void callback(String m)) => _conn.onMessage.listen((e) { callback(_messageToString(e)); } );
+  void onClose(void callback()) => _conn.onClose.listen((e) {
+        callback();
+      });
+  void onError(void callback(err)) => _conn.onError.listen((e) {
+        callback(e);
+      });
+  void onMessage(void callback(String m)) => _conn.onMessage.listen((e) {
+        callback(_messageToString(e));
+      });
 
   String _messageToString(MessageEvent e) {
     // TODO: what are the types here?

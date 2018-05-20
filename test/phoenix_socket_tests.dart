@@ -7,7 +7,6 @@ import 'package:phoenix_wings/phoenix_wings.dart';
 
 import 'mock_server.dart';
 
-
 typedef PhoenixSocket SocketFactory(String e, PhoenixSocketOptions so);
 
 void testPhoenixSocket(SocketFactory makeSocket) {
@@ -113,7 +112,8 @@ void testPhoenixSocket(SocketFactory makeSocket) {
     test("Sends heartbeat", () async {
       final options = new PhoenixSocketOptions();
       options.heartbeatIntervalMs = 5;
-      final socket = makeSocket("ws://localhost:4002/socket/websocket", options);
+      final socket =
+          makeSocket("ws://localhost:4002/socket/websocket", options);
       await socket.connect();
 
       await new Future<Null>.delayed(new Duration(milliseconds: 12));
@@ -139,7 +139,8 @@ void testPhoenixSocket(SocketFactory makeSocket) {
     test("pushes heartbeat data when connected", () async {
       final options = new PhoenixSocketOptions();
       options.heartbeatIntervalMs = 5;
-      final socket = makeSocket("ws://localhost:4002/socket/websocket", options);
+      final socket =
+          makeSocket("ws://localhost:4002/socket/websocket", options);
       await socket.connect();
       await new Future<Null>.delayed(new Duration(milliseconds: 15));
       socket.stopHeartbeat();

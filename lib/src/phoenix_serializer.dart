@@ -7,7 +7,7 @@ class PhoenixSerializer {
     return msg.toJSON();
   }
 
-/// Converts a raw JSON String into a [PhoenixMessage]
+  /// Converts a raw JSON String into a [PhoenixMessage]
   static PhoenixMessage decode(String rawPayload) {
     return PhoenixMessage.decode(rawPayload);
   }

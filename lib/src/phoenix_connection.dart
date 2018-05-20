@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 typedef PhoenixConnection PhoenixConnectionProvider(String endpoint);
 
 abstract class PhoenixConnection {

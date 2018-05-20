@@ -167,6 +167,7 @@ class PhoenixChannel {
 
     return leavePush;
   }
+
   /// Pushes a message to the server
   PhoenixPush push({String event, Map payload}) {
     if (!_joinedOnce) {
@@ -205,7 +206,7 @@ class PhoenixChannel {
   }
 
   triggerError() {
-      trigger(PhoenixChannelEvents.error);
+    trigger(PhoenixChannelEvents.error);
   }
 
   /// Adds a callback which will be triggered on receiving an [event]

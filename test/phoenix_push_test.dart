@@ -8,8 +8,10 @@ import 'package:phoenix_wings/src/phoenix_socket.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 
-class MockChannel extends Mock implements PhoenixChannel{}
-class MockSocket extends Mock implements PhoenixSocket{}
+class MockChannel extends Mock implements PhoenixChannel {}
+
+class MockSocket extends Mock implements PhoenixSocket {}
+
 var socket, channel;
 
 void main() {
@@ -58,7 +60,10 @@ void main() {
       notReceiveExecuted = true;
     });
 
-    push.matchReceive({"status": "ok", "response": {"success": "credibility"}});
+    push.matchReceive({
+      "status": "ok",
+      "response": {"success": "credibility"}
+    });
 
     expect(callbackExecuted, isTrue);
     expect(payload, {"success": "credibility"});
@@ -84,7 +89,8 @@ void main() {
     push.send();
 
     await new Future<Null>.delayed(new Duration(milliseconds: 90));
-    verify(channel.trigger("chan_reply_1", {"status": "timeout", "response": {}}));
+    verify(
+        channel.trigger("chan_reply_1", {"status": "timeout", "response": {}}));
   });
 
   test("clears timer when response received in time", () async {

@@ -32,10 +32,12 @@ class PhoenixSocket {
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
   PhoenixConnectionProvider _connectionProvider = PhoenixIoConnection.provider;
 
-/// Creates an instance of PhoenixSocket
-///
-/// endpoint is the full url to which you wish to connect e.g. `ws://localhost:4000/websocket/socket`
-  PhoenixSocket(String endpoint, {socketOptions: PhoenixSocketOptions, connectionProvider: PhoenixConnectionProvider}) {
+  /// Creates an instance of PhoenixSocket
+  ///
+  /// endpoint is the full url to which you wish to connect e.g. `ws://localhost:4000/websocket/socket`
+  PhoenixSocket(String endpoint,
+      {socketOptions: PhoenixSocketOptions,
+      connectionProvider: PhoenixConnectionProvider}) {
     if (socketOptions is PhoenixSocketOptions) {
       _options = socketOptions;
     }
@@ -64,8 +66,8 @@ class PhoenixSocket {
   int get connectionState => _conn?.readyState ?? 3; // WebSocket CLOSED
   int get sendBufferLength => _sendBuffer.length;
 
-/// [topic] is the name of the channel you wish to join
-/// [params] are any options parameters you wish to send
+  /// [topic] is the name of the channel you wish to join
+  /// [params] are any options parameters you wish to send
   PhoenixChannel channel(String topic, [Map params = const {}]) {
     final channel = new PhoenixChannel(topic, params, this);
     channels.add(channel);
@@ -73,14 +75,13 @@ class PhoenixSocket {
   }
 
   remove(PhoenixChannel channelToRemove) {
-    channels.removeWhere(
-        (chan) => chan.joinRef == channelToRemove.joinRef);
+    channels.removeWhere((chan) => chan.joinRef == channelToRemove.joinRef);
   }
 
-/// Attempts to make a WebSocket connection to your backend
-///
-/// If the attempt fails, retries will be triggered at intervals specified
-/// by retryAfterIntervalMS
+  /// Attempts to make a WebSocket connection to your backend
+  ///
+  /// If the attempt fails, retries will be triggered at intervals specified
+  /// by retryAfterIntervalMS
   connect() async {
     if (_conn != null) {
       return;
@@ -92,7 +93,8 @@ class PhoenixSocket {
         await _conn.waitForConnection();
       } catch (reason) {
         _conn = null;
-        print("WebSocket connection to ${_endpoint.toString()} failed!: $reason");
+        print(
+            "WebSocket connection to ${_endpoint.toString()} failed!: $reason");
 
         tries += 1;
         var wait = reconnectAfterMs[min(tries, reconnectAfterMs.length - 1)];
@@ -106,23 +108,22 @@ class PhoenixSocket {
       _conn
         ..onClose(reconnect)
         ..onMessage(_onConnMessage)
-        ..onError(_onConnectionError)
-        ;
+        ..onError(_onConnectionError);
     }
   }
 
-/// Add a callback to be executed when the connection is successfully made
+  /// Add a callback to be executed when the connection is successfully made
   onOpen(Function() callback) => _stateChangeCallbacks.open.add(callback);
 
-/// Add a callback to be executed when the connection is closed
+  /// Add a callback to be executed when the connection is closed
   onClose(Function(dynamic) callback) =>
       _stateChangeCallbacks.close.add(callback);
 
-/// Add a callback to be executed if an error occurs
+  /// Add a callback to be executed if an error occurs
   onError(Function(dynamic) callback) =>
       _stateChangeCallbacks.error.add(callback);
 
-/// Add a callback for when a message is received
+  /// Add a callback for when a message is received
   onMessage(Function(PhoenixMessage) callback) =>
       _stateChangeCallbacks.message.add(callback);
 
@@ -160,7 +161,7 @@ class PhoenixSocket {
     _stateChangeCallbacks.message.forEach((callback) => callback(message));
   }
 
-/// In the event of a network dropout or other error, attempt to reconnect
+  /// In the event of a network dropout or other error, attempt to reconnect
   reconnect() {
     _onConnClosed(null);
     _conn = null;
@@ -169,7 +170,7 @@ class PhoenixSocket {
     }
   }
 
-/// Terminates the socket connection with an optional [code]
+  /// Terminates the socket connection with an optional [code]
   disconnect({int code: PhoenixConnection.CLOSE_NORMAL}) {
     _heartbeatTimer?.cancel();
     _reconnect = false;
@@ -213,7 +214,7 @@ class PhoenixSocket {
     push(new PhoenixMessage.heartbeat(_pendingHeartbeatRef));
   }
 
-/// Pushes a message to the server
+  /// Pushes a message to the server
   void push(PhoenixMessage msg) {
     final callback = () {
       final encoded = _encode(msg);

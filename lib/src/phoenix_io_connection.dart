@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
-
 import 'package:phoenix_wings/src/phoenix_connection.dart';
-
 
 /// PhoenixIoConnection handles the creation and use
 /// of the underlying websocket connection on browser platforms.
@@ -57,6 +55,8 @@ class PhoenixIoConnection extends PhoenixConnection {
   void onMessage(void callback(String m)) {
     _conn.listen((e) {
       callback(_messageToString(e));
-    }, onDone: () { _closed.complete(); });
+    }, onDone: () {
+      _closed.complete();
+    });
   }
 }
