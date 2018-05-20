@@ -4,9 +4,8 @@ version: 0.0.2
 author: mfeckie<mfeckie@gmail.com>
 homepage: https://github.com/mfeckie/phoenix_wings
 
-dependencies:
-
 dev_dependencies:
   dartdoc: "0.19.0"
   test: "0.12.37"
   mockito: "^2.2.1"
+  stream_channel: "^1.6.4"

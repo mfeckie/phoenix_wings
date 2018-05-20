@@ -204,6 +204,10 @@ class PhoenixChannel {
         bound.callback(handledPayload, ref, joinRefParam ?? joinRef));
   }
 
+  triggerError() {
+      trigger(_PhoenixChannelEvents.error);
+  }
+
   /// Adds a callback which will be triggered on receiving an [event]
   /// with matching name
   int on(String event, PhoenixMessageCallback callback) {

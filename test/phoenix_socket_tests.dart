@@ -1,38 +1,43 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:phoenix_wings/src/phoenix_channel.dart';
-import 'package:phoenix_wings/src/phoenix_message.dart';
-import 'package:phoenix_wings/src/phoenix_serializer.dart';
-import 'package:phoenix_wings/src/phoenix_socket_options.dart';
 import 'package:test/test.dart';
-import 'package:phoenix_wings/src/phoenix_socket.dart';
+
+import 'package:phoenix_wings/phoenix_wings.dart';
 
 import 'mock_server.dart';
 
-PhoenixSocket socket;
-MockServer server;
 
-void main() {
+typedef PhoenixSocket SocketFactory(String e, PhoenixSocketOptions so);
+
+void testPhoenixSocket(SocketFactory makeSocket) {
+  RemoteMockServer server;
+  PhoenixSocket socket;
   setUp(() async {
-    server = new MockServer(4002);
-    await server.start();
-    socket = new PhoenixSocket("ws://localhost:4002/socket/websocket");
+    server = new RemoteMockServer.hybrid();
+    await server.waitForServer();
+
+    socket = makeSocket("ws://localhost:4002/socket/websocket", null);
   });
+
   tearDown(() async {
-    await server.shutdown();
+    socket.disconnect();
+    if (server != null) {
+      await server.shutdown();
+    }
   });
 
   test("Accepts query parameters via an options object", () {
     final endpoint = "ws://localhost:4002/socket";
     final options = new PhoenixSocketOptions();
     options.params = {"stuff": "things"};
-    final socket = new PhoenixSocket(endpoint, socketOptions: options);
+    final socket = makeSocket(endpoint, options);
     expect(socket.endpoint.queryParameters, options.params);
   });
 
   test("Connects idempotently", () async {
     final connection = await socket.connect();
+    expect(socket.isConnected, true);
     final connection2 = await socket.connect();
     expect(connection, connection2);
   });
@@ -63,6 +68,7 @@ void main() {
       });
 
       await socket.connect();
+      expect(socket.isConnected, true);
 
       await new Future<Null>.delayed(new Duration(milliseconds: 10));
 
@@ -94,6 +100,7 @@ void main() {
       });
 
       await socket.connect();
+      expect(socket.isConnected, true);
       await server.testDisconnect();
 
       await new Future<Null>.delayed(new Duration(milliseconds: 10));
@@ -106,13 +113,12 @@ void main() {
     test("Sends heartbeat", () async {
       final options = new PhoenixSocketOptions();
       options.heartbeatIntervalMs = 5;
-      final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
-          socketOptions: options);
+      final socket = makeSocket("ws://localhost:4002/socket/websocket", options);
       await socket.connect();
 
       await new Future<Null>.delayed(new Duration(milliseconds: 12));
       socket.stopHeartbeat();
-      expect(server.heartbeat, greaterThan(0));
+      expect(await server.heartbeat, greaterThan(0));
     });
 
     test("closes socket when heartbeat not ack'd within heartbeat window",
@@ -133,13 +139,12 @@ void main() {
     test("pushes heartbeat data when connected", () async {
       final options = new PhoenixSocketOptions();
       options.heartbeatIntervalMs = 5;
-      final socket = new PhoenixSocket("ws://localhost:4002/socket/websocket",
-          socketOptions: options);
+      final socket = makeSocket("ws://localhost:4002/socket/websocket", options);
       await socket.connect();
       await new Future<Null>.delayed(new Duration(milliseconds: 15));
       socket.stopHeartbeat();
 
-      final hearbeatMessage = server.heartbeatMessageReceived;
+      final hearbeatMessage = await server.heartbeatMessageReceived;
 
       expect(hearbeatMessage.topic, 'phoenix');
       expect(hearbeatMessage.event, 'heartbeat');
@@ -162,6 +167,8 @@ void main() {
       await socket.disconnect();
 
       await new Future<Null>.delayed(new Duration(milliseconds: 100));
+      expect(socket.isConnected, false);
+
       msg.ref = "afterClose";
       socket.push(msg);
       expect(socket.sendBufferLength, 1);
