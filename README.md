@@ -1,6 +1,6 @@
 [ ![Codeship Status for mfeckie/phoenix_wings](https://app.codeship.com/projects/fd20f500-3e14-0136-9f20-1e75e7e00ec5/status?branch=master)](https://app.codeship.com/projects/290729)
 
-[![Pub](https://img.shields.io/pub/v/phoenix_wings.svg?style=flat-square)](https://github.com/mfeckie/phoenix_wings)
+[![Pub](https://img.shields.io/pub/v/phoenix_wings.svg?style=flat-square)](https://pub.dartlang.org/packages/phoenix_wings)
 
 # phoenix_wings.dart
 
