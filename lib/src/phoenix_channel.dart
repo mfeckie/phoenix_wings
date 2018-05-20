@@ -205,7 +205,7 @@ class PhoenixChannel {
   }
 
   triggerError() {
-      trigger(_PhoenixChannelEvents.error);
+      trigger(PhoenixChannelEvents.error);
   }
 
   /// Adds a callback which will be triggered on receiving an [event]
