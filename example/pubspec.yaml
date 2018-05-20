@@ -6,7 +6,6 @@ dependencies:
     sdk: flutter
   phoenix_wings: 
     path: '../'
-  intl: "^0.15.6"
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -16,7 +15,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  intl: "^0.15.6"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
