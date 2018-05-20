@@ -1,3 +1,4 @@
+library phoenix_wings;
 
 export 'src/phoenix_channel.dart';
 export 'src/phoenix_io_connection.dart';
