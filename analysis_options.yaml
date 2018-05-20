@@ -1,0 +1,5 @@
+analyzer:
+  strong-mode: true
+  exclude:
+    - lib/html.dart
+    - lib/src/phoenix_html_connection.dart

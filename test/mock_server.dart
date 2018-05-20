@@ -48,7 +48,7 @@ class MockServer {
 
   handleHeartbeat(message) {
     heartbeat++;
-    final json = JSON.encode([
+    final json = jsonEncode([
       null,
       "${message.ref}",
       "phoenix",
@@ -59,7 +59,7 @@ class MockServer {
   }
 
   handleTestPush() {
-    final success = JSON.encode([null, "ref", "phoenix", "phx_reply", {}]);
+    final success = jsonEncode([null, "ref", "phoenix", "phx_reply", {}]);
     sendMessage(success);
   }
 
