@@ -151,18 +151,18 @@ class RemoteMockServer {
   }
 
   // wait for a string response from the server
-  Future<String> _stringResponse(String command) {
+  Future<dynamic> _stringResponse(String command) {
     final response = _serverMessages
         .firstWhere((message) => (message is String && message == command));
-    return response as Future<String>;
+    return response;
   }
 
   // wait for a list response from the server
-  Future<List> _listResponse(String command) async {
+  Future<dynamic> _listResponse(String command) async {
     final response = _serverMessages
         .firstWhere((message) => (message is List && message[0] == command));
 
-    return response as Future<List>;
+    return response;
   }
 }
 
