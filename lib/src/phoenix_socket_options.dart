@@ -1,10 +1,17 @@
 /// Options for your socket
 class PhoenixSocketOptions {
+  PhoenixSocketOptions({
+    this.timeout = 10000,
+    this.heartbeatIntervalMs = 30000,
+    this.reconnectAfterMs,
+    this.params,
+  });
+
   /// How long to wait for a response
-  int timeout = 10000;
+  int timeout;
 
   /// How many milliseconds between heartbeats
-  int heartbeatIntervalMs = 30000;
+  int heartbeatIntervalMs;
 
   /// Optional list of milliseconds between reconnect attempts
   List<int> reconnectAfterMs;
