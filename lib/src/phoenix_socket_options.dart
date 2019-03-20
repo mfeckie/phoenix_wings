@@ -5,7 +5,11 @@ class PhoenixSocketOptions {
     this.heartbeatIntervalMs = 30000,
     this.reconnectAfterMs,
     this.params,
-  });
+  }) {
+    params ??= {};
+    params['vsn'] = '2.0.0';
+  }
+
 
   /// How long to wait for a response
   int timeout;
@@ -17,5 +21,5 @@ class PhoenixSocketOptions {
   List<int> reconnectAfterMs;
 
   /// Parameters sent to your Phoenix backend on connection.
-  Map<String, String> params = {"vsn": "2.0.0"};
+  Map<String, String> params;
 }
