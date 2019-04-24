@@ -52,11 +52,10 @@ chatChannel.join();
 
 ## Testing
 
-Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. You can use the following commands to run all tests for both platforms:
+Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. 
+
+By default tests will run on VM, Chrome and Firefox.  This is set in dart_test.yaml
+
+Tests are run via `pub run test`
 
 
-        # using firefox
-        pub run test test/ -p vm,firefox
-
-        # using chrome
-        pub run test test/ -p vm,chrome
