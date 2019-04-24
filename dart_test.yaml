@@ -1,0 +1,5 @@
+platforms:
+  - chrome
+  - firefox
+  - vm
+concurrency: 1
