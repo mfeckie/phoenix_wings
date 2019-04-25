@@ -15,7 +15,7 @@ class PhoenixPresence {
 
   PhoenixPresence(this.channel, {this.opts}) {
     opts ??= {};
-    events = opts.containsKey('events') ? opts['events'] : PresenceEvents(PhoenixPresenceEvents.presenceState, PhoenixPresenceEvents.presenceDiff);
+    events = opts['events'] ?? PresenceEvents(PhoenixPresenceEvents.presenceState, PhoenixPresenceEvents.presenceDiff);
     state = {};
     joinRef = null;
     caller = _PresenceCallers(_noop, _noop, () {});
