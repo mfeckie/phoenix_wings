@@ -171,5 +171,5 @@ class _PresenceCallers {
   Function(dynamic key, dynamic currentPresence, dynamic newPresence) onJoin;
   Function(dynamic key, dynamic currentPresence, dynamic newPresence) onLeave;
   Function() onSync;
-  _PresenceCallers(this.onJoin, this.onLeave, this.onSync);
+  _PresenceCallers({this.onJoin, this.onLeave, this.onSync});
 }
