@@ -18,7 +18,7 @@ class PhoenixPresence {
     events = opts['events'] ?? PresenceEvents(PhoenixPresenceEvents.presenceState, PhoenixPresenceEvents.presenceDiff);
     state = {};
     joinRef = null;
-    caller = _PresenceCallers(_noop, _noop, () {});
+        caller = _PresenceCallers(onJoin: _noop, onLeave: _noop, onSync: () {});
 
     this.channel.on(events.state, (newState, _ref, _joinRef) {
       this.joinRef = this.channel.joinRef;
