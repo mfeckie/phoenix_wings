@@ -63,29 +63,30 @@ class PhoenixPresence {
 
     newState.forEach((key, newPresence) {
       var currentPresence = state[key];
-      if (currentPresence != null) {
-        var newRefs = List<Map<String, dynamic>>.from(newPresence['metas'])
-          .where((meta) => meta.containsKey('phx_ref'))
-          .map((meta) => meta['phx_ref']);
-
-        var curRefs = List<Map<String, dynamic>>.from(currentPresence['metas'])
-          .where((meta) => meta.containsKey('phx_ref'))
-          .map((meta) => meta['phx_ref']);
-
-        var joinedMetas = newPresence['metas'].where((meta) => !curRefs.contains(meta['phx_ref']));
-        var leftMetas = currentPresence['metas'].where((meta) => !newRefs.contains(meta['phx_ref']));
-
-        if (joinedMetas.length > 0) {
-          joins[key] = clone(newPresence);
-          joins[key]['metas'] = List<Map<String, dynamic>>.from(joinedMetas);
-        }
-
-        if (leftMetas.length > 0) {
-          leaves[key] = clone(currentPresence);
-          leaves[key]['metas'] = List<Map<String, dynamic>>.from(leftMetas);
-        }
-      } else {
+      if (currentPresence == null) {
         joins[key] = newPresence;
+        return;
+      }
+
+      var newRefs = List<Map<String, dynamic>>.from(newPresence['metas'])
+        .where((meta) => meta.containsKey('phx_ref'))
+        .map((meta) => meta['phx_ref']);
+
+      var curRefs = List<Map<String, dynamic>>.from(currentPresence['metas'])
+        .where((meta) => meta.containsKey('phx_ref'))
+        .map((meta) => meta['phx_ref']);
+
+      var joinedMetas = newPresence['metas'].where((meta) => !curRefs.contains(meta['phx_ref']));
+      var leftMetas = currentPresence['metas'].where((meta) => !newRefs.contains(meta['phx_ref']));
+
+      if (joinedMetas.length > 0) {
+        joins[key] = clone(newPresence);
+        joins[key]['metas'] = List<Map<String, dynamic>>.from(joinedMetas);
+      }
+
+      if (leftMetas.length > 0) {
+        leaves[key] = clone(currentPresence);
+        leaves[key]['metas'] = List<Map<String, dynamic>>.from(leftMetas);
       }
     });
 
