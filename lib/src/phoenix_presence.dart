@@ -24,9 +24,8 @@ class PhoenixPresence {
       this.joinRef = this.channel.joinRef;
       this.state = Map<String, Map<String, dynamic>>.from(syncState(this.state, newState, caller.onJoin, caller.onLeave));
 
-      this.pendingDiffs.forEach((diff) {
-        this.state = Map<String, Map<String, dynamic>>.from(syncDiff(this.state, diff, caller.onJoin, caller.onLeave));
-      });
+      this.pendingDiffs.forEach((diff) => this.state = Map<String, Map<String, dynamic>>.from(syncDiff(this.state, diff, caller.onJoin, caller.onLeave)));
+
       this.pendingDiffs = [];
       caller.onSync();
     });
