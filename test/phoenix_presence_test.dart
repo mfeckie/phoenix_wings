@@ -245,9 +245,9 @@ void main() {
       ]));
 
       // disconnect and reconnect
-      expect(phoenixPresence.inPendingSyncState(), equals(false));
+      expect(phoenixPresence.inPendingSyncState, equals(false));
       _mockChannel.simulateDisconnectAndReconnect();
-      expect(phoenixPresence.inPendingSyncState(), equals(true));
+      expect(phoenixPresence.inPendingSyncState, equals(true));
 
       _mockChannel.triggerEvent("presence_diff", {'joins': {}, 'leaves': {'u1': user1}});
       expect(phoenixPresence.list(by: listByFirst), equals([{'id': 1, 'phx_ref': '1'}]));

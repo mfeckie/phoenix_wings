@@ -31,7 +31,7 @@ class PhoenixPresence {
     });
 
     this.channel.on(events.diff, (diff, _ref, _joinRef) {
-      if (this.inPendingSyncState()) {
+      if (this.inPendingSyncState) {
         this.pendingDiffs.add(diff);
       } else {
         this.state = Map<String, Map<String, dynamic>>.from(syncDiff(this.state, diff, caller.onJoin, caller.onLeave));
@@ -50,9 +50,7 @@ class PhoenixPresence {
     return _list(this.state, by);
   }
 
-  inPendingSyncState(){
-    return this.joinRef == null || (this.joinRef != this.channel.joinRef);
-  }
+  get inPendingSyncState => this.joinRef == null || (this.joinRef != this.channel.joinRef);
 
   static syncState(currentState, newState, onJoinCallback, onLeaveCallback){
     var state = clone(currentState);
