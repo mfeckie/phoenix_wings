@@ -13,7 +13,7 @@ MockChannel _mockChannel;
 void main() {
   Map<String, Map<String, dynamic>> presences;
 
-  setUp(() async {
+  setUp(() {
     _mockChannel = MockChannel();
 
     presences = {
@@ -23,12 +23,9 @@ void main() {
     };
   });
 
-  tearDown(() async {
-  });
-
   group("Presence construciton", () {
     test("Returns presence with defaults", () {
-      var phoenixPresence = PhoenixPresence(_mockChannel);
+      final phoenixPresence = PhoenixPresence(_mockChannel);
       expect(phoenixPresence.channel, equals(_mockChannel));
       expect(phoenixPresence.opts, equals({}));
       expect(phoenixPresence.events.state, equals(PhoenixPresenceEvents.presenceState));
@@ -38,9 +35,9 @@ void main() {
 
   group("syncState", () {
     test("syncs empty state", () {
-      var newState = {'u1': {'metas': [{'id': 1, 'phx_ref': '1'}]}};
+      final newState = {'u1': {'metas': [{'id': 1, 'phx_ref': '1'}]}};
       var state = {};
-      var stateBefore = {};
+      final stateBefore = {};
 
       PhoenixPresence.syncState(state, newState, null, null);
       expect(state, equals(stateBefore));
@@ -50,23 +47,23 @@ void main() {
     });
 
     test("onJoins new presences and onLeave's left presences", () {
-      var newState = PhoenixPresence.clone(presences);
-      var state = {'u4': {'metas': [{'id': 4, 'phx_ref': '4'}]}};
-      var joined = {};
-      var left = {};
-      var onJoin = (key, current, newPres) {
+      final newState = PhoenixPresence.clone(presences);
+      final state = {'u4': {'metas': [{'id': 4, 'phx_ref': '4'}]}};
+      final joined = {};
+      final left = {};
+      final onJoin = (key, current, newPres) {
         joined[key] = {'current': current, 'newPres': newPres};
       };
 
-      var onLeave = (key, current, leftPres) {
+      final onLeave = (key, current, leftPres) {
         left[key] = {'current': current, 'leftPres': leftPres};
       };
 
-      var stateBefore = new Map.from(state);
+      final stateBefore = new Map.from(state);
       PhoenixPresence.syncState(state, newState, onJoin, onLeave);
       expect(state, equals(stateBefore));
 
-      var resultState = PhoenixPresence.syncState(state, newState, onJoin, onLeave);
+      final resultState = PhoenixPresence.syncState(state, newState, onJoin, onLeave);
       expect(resultState, equals(newState));
       expect(joined, equals({
         'u1': {'current': null, 'newPres': {'metas': [{'id': 1, 'phx_ref': '1'}]}},
@@ -79,20 +76,20 @@ void main() {
     });
 
     test("onJoins only newly added metas", () {
-      var newState = {'u3': {'metas': [{'id': 3, 'phx_ref': '3'}, {'id': 3, 'phx_ref': '3.new'}]}};
-      var state = {'u3': {'metas': [{'id': 3, 'phx_ref': '3'}]}};
-      var joined = {};
-      var left = {};
+      final newState = {'u3': {'metas': [{'id': 3, 'phx_ref': '3'}, {'id': 3, 'phx_ref': '3.new'}]}};
+      final state = {'u3': {'metas': [{'id': 3, 'phx_ref': '3'}]}};
+      final joined = {};
+      final left = {};
 
-      var onJoin = (key, current, newPres) => {
+      final onJoin = (key, current, newPres) => {
         joined[key] = {'current': current, 'newPres': newPres}
       };
 
-      var onLeave = (key, current, leftPres) => {
+      final onLeave = (key, current, leftPres) => {
         left[key] = {'current': current, 'leftPres': leftPres}
       };
 
-      var resultState = PhoenixPresence.syncState(state, newState, onJoin, onLeave);
+      final resultState = PhoenixPresence.syncState(state, newState, onJoin, onLeave);
       expect(resultState, equals(newState));
       expect(joined, equals({
         'u3': {'current': {'metas': [{'id': 3, 'phx_ref': '3'}]},
@@ -104,12 +101,12 @@ void main() {
 
   group("syncDiff", () {
     test("syncs empty state", () {
-      var joins = {'u1': {'metas': [{'id': 1, 'phx_ref': '1'}]}};
-      var state = {};
+      final joins = {'u1': {'metas': [{'id': 1, 'phx_ref': '1'}]}};
+      final state = {};
       PhoenixPresence.syncDiff(state, {'joins': joins, 'leaves': {}}, null, null);
       expect(state, equals({}));
 
-      var resultState = PhoenixPresence.syncDiff(state, {
+      final resultState = PhoenixPresence.syncDiff(state, {
         'joins': joins,
         'leaves': {}
       }, null, null);
@@ -118,11 +115,11 @@ void main() {
     });
 
     test("removes presence when meta is empty and adds additional meta", () {
-      var state = presences;
-      var joins = {'u1': {'metas': [{'id': 1, 'phx_ref': '1.2'}]}};
-      var leaves = {'u2': {'metas': [{'id': 2, 'phx_ref': '2'}]}};
+      final state = presences;
+      final joins = {'u1': {'metas': [{'id': 1, 'phx_ref': '1.2'}]}};
+      final leaves = {'u2': {'metas': [{'id': 2, 'phx_ref': '2'}]}};
 
-      var resultState = PhoenixPresence.syncDiff(state, {'joins': joins, 'leaves': leaves}, null, null);
+      final resultState = PhoenixPresence.syncDiff(state, {'joins': joins, 'leaves': leaves}, null, null);
 
       expect(resultState, equals({
         'u1': {'metas': [{'id': 1, 'phx_ref': '1'}, {'id': 1, 'phx_ref': '1.2'}]},
@@ -131,11 +128,11 @@ void main() {
     });
 
     test("removes meta while leaving key if other metas exist", () {
-      var state = {
+      final state = {
         'u1': {'metas': [{'id': 1, 'phx_ref': '1'}, {'id': 1, 'phx_ref': '1.2'}]}
       };
 
-      var resultState = PhoenixPresence.syncDiff(state, {
+      final resultState = PhoenixPresence.syncDiff(state, {
         'joins': {},
         'leaves': {'u1': {'metas': [{'id': 1, 'phx_ref': '1'}]}}
       }, null, null);
@@ -148,10 +145,10 @@ void main() {
 
   group("list", () {
     test("lists full presence by default", () {
-      var phoenixPresence = PhoenixPresence(_mockChannel);
+      final phoenixPresence = PhoenixPresence(_mockChannel);
       phoenixPresence.state = presences;
 
-      var result = phoenixPresence.list();
+      final result = phoenixPresence.list();
 
       expect(result, equals([
         {'metas': [{'id': 1, 'phx_ref': '1'}]},
@@ -161,13 +158,13 @@ void main() {
     });
 
     test("lists with custom function", () {
-      var phoenixPresence = PhoenixPresence(_mockChannel);
+      final phoenixPresence = PhoenixPresence(_mockChannel);
       phoenixPresence.state = {'u1': {'metas': [
         {'id': 1, 'phx_ref': '1.first'},
         {'id': 1, 'phx_ref': '1.second'}]
       }};
 
-      var result = phoenixPresence.list(by: (key, presence) {
+      final result = phoenixPresence.list(by: (key, presence) {
         return presence['metas'].first;
       });
 
@@ -178,16 +175,16 @@ void main() {
   });
 
   group("instance", () {
-    var listByFirst = (key, presence) {
+    final listByFirst = (key, presence) {
       return presence['metas'].first;
     };
 
     test("syncs state and diffs", () {
-      var phoenixPresence = PhoenixPresence(_mockChannel);
+      final phoenixPresence = PhoenixPresence(_mockChannel);
 
-      var user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
-      var user2 = {'metas': [{'id': 2, 'phx_ref': '2'}]};
-      var newState = {'u1': user1, 'u2': user2};
+      final user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
+      final user2 = {'metas': [{'id': 2, 'phx_ref': '2'}]};
+      final newState = {'u1': user1, 'u2': user2};
 
       _mockChannel.triggerEvent("presence_state", newState);
       expect(phoenixPresence.list(by: listByFirst), equals([
@@ -200,10 +197,10 @@ void main() {
     });
 
     test("applies pending diff if state is not yet synced", () {
-      var phoenixPresence = PhoenixPresence(_mockChannel);
+      final phoenixPresence = PhoenixPresence(_mockChannel);
 
-      var onJoins = [];
-      var onLeaves = [];
+      final onJoins = [];
+      final onLeaves = [];
 
       phoenixPresence.onJoin((id, current, newPres) => {
         onJoins.add({
@@ -221,11 +218,11 @@ void main() {
       });
 
       // new connection
-      var user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
-      var user2 = {'metas': [{'id': 2, 'phx_ref': '2'}]};
-      var user3 = {'metas': [{'id': 3, 'phx_ref': '3'}]};
-      var newState = {'u1': user1, 'u2': user2};
-      var leaves = {'u2': user2};
+      final user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
+      final user2 = {'metas': [{'id': 2, 'phx_ref': '2'}]};
+      final user3 = {'metas': [{'id': 3, 'phx_ref': '3'}]};
+      final newState = {'u1': user1, 'u2': user2};
+      final leaves = {'u2': user2};
 
       _mockChannel.triggerEvent("presence_diff", {'joins': {}, 'leaves': leaves});
 
@@ -257,10 +254,10 @@ void main() {
     });
 
     test("allows custom channel events", () {
-      var customEvents = new PresenceEvents('the_state', 'the_diff');
-      var phoenixPresence = PhoenixPresence(_mockChannel, opts: {'events': customEvents});
+      final customEvents = new PresenceEvents('the_state', 'the_diff');
+      final phoenixPresence = PhoenixPresence(_mockChannel, opts: {'events': customEvents});
 
-      var user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
+      final user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
       _mockChannel.triggerEvent("the_state", {'user1': user1});
       expect(phoenixPresence.list(by: listByFirst), equals([{'id': 1, 'phx_ref': '1'}]));
       _mockChannel.triggerEvent("the_diff", {'joins': {}, 'leaves': {'user1': user1}});
