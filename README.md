@@ -1,4 +1,4 @@
-[ ![Codeship Status for mfeckie/phoenix_wings](https://app.codeship.com/projects/fd20f500-3e14-0136-9f20-1e75e7e00ec5/status?branch=master)](https://app.codeship.com/projects/290729)
+[![Build Status](https://travis-ci.org/mfeckie/phoenix_wings.svg?branch=master)](https://travis-ci.org/mfeckie/phoenix_wings)
 
 [![Pub](https://img.shields.io/pub/v/phoenix_wings.svg?style=flat-square)](https://pub.dartlang.org/packages/phoenix_wings)
 
@@ -52,11 +52,10 @@ chatChannel.join();
 
 ## Testing
 
-Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. You can use the following commands to run all tests for both platforms:
+Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. 
+
+By default tests will run on VM, Chrome and Firefox.  This is set in dart_test.yaml
+
+Tests are run via `pub run test`
 
 
-        # using firefox
-        pub run test test/ -p vm,firefox
-
-        # using chrome
-        pub run test test/ -p vm,chrome
