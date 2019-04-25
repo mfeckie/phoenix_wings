@@ -46,9 +46,7 @@ class PhoenixPresence {
 
   onSync(Function() callback) => this.caller.onSync = callback;
 
-  list({Function by = null}) {
-    return _list(this.state, by);
-  }
+  list({Function by = null}) => _list(this.state, by);
 
   get inPendingSyncState => this.joinRef == null || (this.joinRef != this.channel.joinRef);
 
