@@ -15,8 +15,8 @@ class PhoenixIoConnection extends PhoenixConnection {
   //  * this enables setting onClose/onDone/onError separately
   Completer _closed = new Completer();
 
-  bool get isConnected => _conn?.readyState == WebSocket.OPEN;
-  int get readyState => _conn?.readyState ?? WebSocket.CLOSED;
+  bool get isConnected => _conn?.readyState == WebSocket.open;
+  int get readyState => _conn?.readyState ?? WebSocket.closed;
 
   static PhoenixConnection provider(String endpoint) {
     return new PhoenixIoConnection(endpoint);
@@ -34,7 +34,11 @@ class PhoenixIoConnection extends PhoenixConnection {
   }
 
   void close([int code, String reason]) => _conn?.close(code, reason);
-  void send(String data) => _conn.add(data);
+  void send(String data) {
+    if (isConnected) {
+      _conn.add(data);
+    }
+  }
 
   void onClose(void callback()) {
     _closed.future.then((e) {
