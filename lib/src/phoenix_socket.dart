@@ -105,10 +105,13 @@ class PhoenixSocket {
 
       _reconnect = true;
       _onConnOpened();
-      _conn
-        ..onClose(reconnect)
-        ..onMessage(_onConnMessage)
-        ..onError(_onConnectionError);
+
+      if (_conn != null) {
+        _conn
+          ..onClose(reconnect)
+          ..onMessage(_onConnMessage)
+          ..onError(_onConnectionError);
+      }
     }
   }
 
