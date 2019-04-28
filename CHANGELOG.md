@@ -1,3 +1,10 @@
-## [0.0.1] - TODO: Add release date.
+## [0.2.0]
+* Fix a bug with socket options params vsn value being overridden
+* Remove dependency on Flutter
+* Move to TravisCI
+* Upgrade dependencies
+* Add the `PhoenixPresence` service which is a port of the Phoenix JavaScript client
 
-* TODO: Describe initial release.
+## [0.1.3]
+
+## [0.1.2]
