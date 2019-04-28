@@ -203,7 +203,7 @@ class PhoenixSocket {
 
   /// @nodoc
   void sendHeartbeat(Timer timer) {
-    if (_conn == null) {
+    if (_conn == null || !_conn.isConnected) {
       return;
     }
 
