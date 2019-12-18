@@ -50,6 +50,33 @@ chatChannel.on("user_entered", PhoenixMessageCallback (Map payload, String _ref,
 chatChannel.join();
 ```
 
+### Examples
+
+*Flutter* - when running the flutter example in your emulator, with the server
+also running in the same computer host, remmember that the emulator is runing 
+in a segregated VM, so you need to configure it to point your server that is
+running in the host machine.
+
+```bash
+
+# check your IP configuration
+sudo ifconfig
+enp0s20u5c4i2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+inet 172.20.10.2  netmask 255.255.255.240  broadcast 172.20.10.15
+```
+
+1. After checking your IP, go to your flutter Settings -> Proxy, and add the proxy
+host configuration with your IP, and port where you phoenix server with the
+websockets is listening.
+
+2. Configure your flutter app to point to your phoenix websocket server.
+```
+final socket = PhoenixSocket("ws://192.168.39.1:4000/socket/websocket");
+```
+See
+[here](https://stackoverflow.com/questions/6760585/accessing-localhostport-from-android-emulator)
+for an ilustrated example.
+
 ## Testing
 
 Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. 
