@@ -3,6 +3,8 @@ defmodule ServerWeb.UserSocket do
 
   ## Channels
   # channel "room:*", ServerWeb.RoomChannel
+  #
+  channel "flutter_chat:lobby", ServerWeb.FlutterChatChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

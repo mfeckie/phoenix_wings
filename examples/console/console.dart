@@ -4,12 +4,13 @@ import 'dart:async' show Timer;
 
 
 /**
- * Connect to the example phoenix server, and send some messages
+ * Connect to the example phoenix server, and send some messages, without using the phoenix_wings,
+ * because sometimes we want to debug websocket protocol straight on 'bare metals' :)
  */
 
 main() {
   // change the ws;// address to point to your websocket server
-  WebSocket.connect('wss://wepy.gigalixirapp.com/socket/websocket').then((WebSocket ws) {
+  WebSocket.connect('ws://my_server:4000/socket/websocket').then((WebSocket ws) {
     if (ws?.readyState == WebSocket.open) {
       // as soon as websocket is connected and ready for use, we can start talking to other end
       ws.add(json.encode({

@@ -24,7 +24,7 @@ class MyHomePage extends StatefulWidget {
   // if you want to run both phoenix and flutter [with emulator] in the same
   // machine, point to your local machine [not localhost], as described in 
   // the README.md file.
-  final socket = PhoenixSocket("ws://192.168.39.1:4000/socket/websocket");
+  final socket = PhoenixSocket("ws://my_server:4000/socket/websocket");
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -52,9 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _say(payload, _ref, _joinRef) {
-    setState(() {
+    setState( () {
       messages.insert(0, ChatMessage(text: payload["message"]));
-  });
+    });
+  }
 
   _sendMessage(message) {
     _channel.push(event: "say", payload: {"message": message});
@@ -101,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 
 /**
  * Represents the chat message
