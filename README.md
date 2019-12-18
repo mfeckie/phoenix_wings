@@ -52,7 +52,7 @@ chatChannel.join();
 
 ### Examples
 
-*Flutter* - when running the flutter example in your emulator, with the server
+*Mobile* - when running the flutter example in your emulator, with the server
 also running in the same computer host, remmember that the emulator is runing 
 in a segregated VM, so you need to configure it to point your server that is
 running in the host machine.
@@ -62,7 +62,7 @@ running in the host machine.
 # check your IP configuration
 sudo ifconfig
 enp0s20u5c4i2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-inet 172.20.10.2  netmask 255.255.255.240  broadcast 172.20.10.15
+inet 10.0.0.2  netmask 255.255.255.240  broadcast 172.20.10.15
 ```
 
 1. After checking your IP, go to your flutter Settings -> Proxy, and add the proxy
@@ -71,11 +71,25 @@ websockets is listening.
 
 2. Configure your flutter app to point to your phoenix websocket server.
 ```
-final socket = PhoenixSocket("ws://192.168.39.1:4000/socket/websocket");
+final socket = PhoenixSocket("ws://10.0.0.2:4000/socket/websocket");
 ```
 See
 [here](https://stackoverflow.com/questions/6760585/accessing-localhostport-from-android-emulator)
 for an ilustrated example.
+
+*Server* - phoenix server with a channel that will communicate with the flutter
+app above.
+
+*Console* - if you want to debug the websockets direclty, without phoenix_wings,
+using the phoenix protocol. See
+[here](http://graemehill.ca/websocket-clients-and-phoenix-channels/) for more
+info about the json protocol. You will have a lot of fun, connecting, and seeing
+the loop in this console app sending messages to your flutter app.
+To run, simply:
+
+```
+dart console.dart
+```
 
 ## Testing
 
