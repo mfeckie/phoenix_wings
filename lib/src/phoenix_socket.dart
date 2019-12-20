@@ -156,7 +156,7 @@ class PhoenixSocket {
       _pendingHeartbeatRef = null;
     }
 
-    channels
+    List.from(channels)
         .where((channel) => channel.isMember(
             message.topic, message.event, message.payload, message.joinRef))
         .forEach((channel) => channel.trigger(
