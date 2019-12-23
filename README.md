@@ -76,7 +76,7 @@ final socket = PhoenixSocket("ws://10.0.0.2:4000/socket/websocket");
 ```
 See
 [here](https://stackoverflow.com/questions/6760585/accessing-localhostport-from-android-emulator)
-for an ilustrated example.
+for an illustrated example.
 
 *Server* - phoenix server with a channel that will communicate with the flutter
 app above.
@@ -99,5 +99,4 @@ Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests mu
 By default tests will run on VM, Chrome and Firefox.  This is set in dart_test.yaml
 
 Tests are run via `pub run test`
-
 
