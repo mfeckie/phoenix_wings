@@ -5,7 +5,7 @@ import 'dart:async' show Timer;
 
 /**
  * Connect to the example phoenix server, and send some messages, without using the phoenix_wings,
- * because sometimes we want to debug websocket protocol straight on 'bare metals' :)
+ * because sometimes we want to debug the websocket protocol straight on 'bare metal' :)
  */
 
 main() {
@@ -43,4 +43,3 @@ main() {
       // in case, if serer is not running now
   }, onError: (err) => print('[!]Error -- ${err.toString()}'));
 }
-
