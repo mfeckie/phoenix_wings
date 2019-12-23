@@ -54,7 +54,7 @@ chatChannel.join();
 ### Examples
 
 *Mobile* - when running the flutter example in your emulator, with the server
-also running in the same computer host, remmember that the emulator is runing 
+also running in the same computer host, remember that the emulator is running 
 in a segregated VM, so you need to configure it to point your server that is
 running in the host machine.
 
