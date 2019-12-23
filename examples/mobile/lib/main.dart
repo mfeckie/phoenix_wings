@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Phoneix Wings Chat'),
+      home: MyHomePage(title: 'Phoenix Wings Chat'),
     );
   }
 }
