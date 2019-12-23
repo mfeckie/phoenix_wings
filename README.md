@@ -67,7 +67,7 @@ inet 10.0.0.2  netmask 255.255.255.240  broadcast 172.20.10.15
 ```
 
 1. After checking your IP, go to your flutter Settings -> Proxy, and add the proxy
-host configuration with your IP, and port where you phoenix server with the
+host configuration with your IP, and port where your phoenix server with the
 websockets is listening.
 
 2. Configure your flutter app to point to your phoenix websocket server.
