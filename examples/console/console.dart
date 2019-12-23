@@ -40,6 +40,6 @@ main() {
       );
     } else
       print('[!]Connection Denied');
-      // in case, if serer is not running now
+      // in case the server is not running now
   }, onError: (err) => print('[!]Error -- ${err.toString()}'));
 }
