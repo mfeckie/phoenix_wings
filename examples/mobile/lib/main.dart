@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _say(payload, _ref, _joinRef) {
-    setState( () {
+    setState(() {
       messages.insert(0, ChatMessage(text: payload["message"]));
     });
   }
