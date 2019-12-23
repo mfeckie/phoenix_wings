@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await widget.socket.connect();
     // Create a new PhoenixChannel
     _channel = widget.socket.channel("flutter_chat:lobby");
-    // Setup listeneres for channel events
+    // Setup listeners for channel events
     _channel.on("say", _say);
     // Make the request to the server to join the channel
     _channel.join();
