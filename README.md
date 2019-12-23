@@ -61,7 +61,7 @@ running in the host machine.
 ```bash
 
 # check your IP configuration
-sudo ifconfig
+$ ifconfig
 enp0s20u5c4i2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 inet 10.0.0.2  netmask 255.255.255.240  broadcast 172.20.10.15
 ```
@@ -99,4 +99,3 @@ Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests mu
 By default tests will run on VM, Chrome and Firefox.  This is set in dart_test.yaml
 
 Tests are run via `pub run test`
-
