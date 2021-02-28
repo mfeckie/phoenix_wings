@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/mfeckie/phoenix_wings.svg?branch=master)](https://travis-ci.org/mfeckie/phoenix_wings)
-
 [![Pub](https://img.shields.io/pub/v/phoenix_wings.svg?style=flat-square)](https://pub.dartlang.org/packages/phoenix_wings)
 
 
