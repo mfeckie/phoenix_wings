@@ -16,6 +16,9 @@ class PhoenixSocket {
   List<int> reconnectAfterMs = const [1000, 2000, 5000, 10000];
   int _ref = 0;
 
+  // exit flag to abort connect loop
+  bool _connecting = false;
+
   var _encode = PhoenixSerializer.encode;
   var _decode = PhoenixSerializer.decode;
   Timer _heartbeatTimer;
@@ -87,7 +90,9 @@ class PhoenixSocket {
       return;
     }
 
-    for (int tries = 0; _conn == null; tries += 1) {
+    _connecting = true;
+
+    for (int tries = 0; _conn == null && _connecting; tries += 1) {
       try {
         _conn = _connectionProvider(_endpoint.toString());
         await _conn.waitForConnection();
@@ -96,7 +101,6 @@ class PhoenixSocket {
         print(
             "WebSocket connection to ${_endpoint.toString()} failed!: $reason");
 
-        tries += 1;
         var wait = reconnectAfterMs[min(tries, reconnectAfterMs.length - 1)];
         await new Future.delayed(new Duration(milliseconds: wait));
 
@@ -177,6 +181,9 @@ class PhoenixSocket {
   disconnect({int code: PhoenixConnection.CLOSE_NORMAL}) {
     _heartbeatTimer?.cancel();
     _reconnect = false;
+
+    // abort any connecting loop
+    _connecting = false;
 
     if (_conn == null) {
       return;
