@@ -2,6 +2,7 @@
 
 [![Pub](https://img.shields.io/pub/v/phoenix_wings.svg?style=flat-square)](https://pub.dartlang.org/packages/phoenix_wings)
 
+
 # phoenix_wings.dart
 
 A Phoenix Channel implementation for Dart
@@ -50,6 +51,47 @@ chatChannel.on("user_entered", PhoenixMessageCallback (Map payload, String _ref,
 chatChannel.join();
 ```
 
+### Examples
+
+*Mobile* - when running the flutter example in your emulator, with the server
+also running in the same computer host, remember that the emulator is running 
+in a segregated VM, so you need to configure it to point your server that is
+running on the host machine.
+
+```bash
+
+# check your IP configuration
+$ ifconfig
+enp0s20u5c4i2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+inet 10.0.0.2  netmask 255.255.255.240  broadcast 172.20.10.15
+```
+
+1. After checking your IP, go to your flutter Settings -> Proxy, and add the proxy
+host configuration with your IP, and port where your phoenix server with the
+websockets is listening.
+
+2. Configure your flutter app to point to your phoenix websocket server.
+```
+final socket = PhoenixSocket("ws://10.0.0.2:4000/socket/websocket");
+```
+See
+[here](https://stackoverflow.com/questions/6760585/accessing-localhostport-from-android-emulator)
+for an illustrated example.
+
+*Server* - phoenix server with a channel that will communicate with the flutter
+app above.
+
+*Console* - if you want to debug the websockets direclty, without phoenix_wings,
+using the phoenix protocol. See
+[here](http://graemehill.ca/websocket-clients-and-phoenix-channels/) for more
+info about the json protocol. You will have a lot of fun, connecting, and seeing
+the loop in this console app sending messages to your flutter app.
+To run, simply:
+
+```
+dart console.dart
+```
+
 ## Testing
 
 Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests must run in a browser. 
@@ -57,5 +99,3 @@ Most of the tests are run on the VM. However, the PhoenixHtmlConnection tests mu
 By default tests will run on VM, Chrome and Firefox.  This is set in dart_test.yaml
 
 Tests are run via `pub run test`
-
-
