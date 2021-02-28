@@ -17,7 +17,7 @@ class MockServer {
   MockServer(this.port);
 
   start() async {
-    _server = await HttpServer.bind("localhost", port);
+    _server = await HttpServer.bind("localhost", port, shared: true);
     _serve();
   }
 
@@ -64,7 +64,7 @@ class MockServer {
   }
 
   sendMessage(String msg) {
-    if (_socket.readyState != WebSocket.open) {
+    if (_socket?.readyState != WebSocket.open) {
       return;
     }
     _socket.add(msg);
