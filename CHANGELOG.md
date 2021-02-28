@@ -1,3 +1,10 @@
+## [0.2.2]
+* Improve error handling for StreamSink
+* Update README thanks [@leksim](https://github.com/mfeckie/phoenix_wings/pull/18)
+* Clone channel list thanks [@kraglik](https://github.com/mfeckie/phoenix_wings/pull/17)
+* Update deps and reorganize examples thanks [@henry-hz](https://github.com/mfeckie/phoenix_wings/pull/16)
+* Fix reconnection error thanks [@mjheilmann](https://github.com/mfeckie/phoenix_wings/pull/14)
+
 ## [0.2.1]
 
 * Fix a bug where items were still added to StreamSink despite the connection being terminated
