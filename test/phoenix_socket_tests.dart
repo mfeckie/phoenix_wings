@@ -50,7 +50,7 @@ void testPhoenixSocket(SocketFactory makeSocket) {
 
   group("Connection state", () {
     test("defaults to closed", () {
-      expect(socket.connectionState, WebSocket.CLOSED);
+      expect(socket.connectionState, WebSocket.closed);
     });
 
     test("isConnected is false when not connected", () {
