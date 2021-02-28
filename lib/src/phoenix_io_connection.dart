@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 
@@ -34,9 +35,14 @@ class PhoenixIoConnection extends PhoenixConnection {
   }
 
   void close([int code, String reason]) => _conn?.close(code, reason);
+
   void send(String data) {
     if (isConnected) {
-      _conn.add(data);
+      try {
+        _conn.add(data);
+      } catch (e) {
+        log(e.message);
+      }
     }
   }
 
