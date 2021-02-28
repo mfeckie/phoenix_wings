@@ -21,11 +21,18 @@ Much of the library is the same whether your code is running in the VM/Flutter o
 import 'package:phoenix_wings/phoenix_wings.dart';
 
 
-final socket = new PhoenixSocket("ws://localhost:4000/websocket/socket");
+final socket = new PhoenixSocket("ws://localhost:4000/socket/websocket");
 
 // equivalent to passing connectionProvider: PhoenixIoConnection.provider
 
+// you can also pass params on connection if you for example want to authenticate using a user token like
+final socket = PhoenixSocket("ws://localhost:4000/socket/websocket", socketOptions: PhoenixSocketOptions(params: {"user_token":  'user token here'}, ));
 ```
+Options that can be passed on connection include :-
+- **timeout** - How long to wait for a response in miliseconds. **Default** 10000
+- **heartbeatIntervalMs** - How many milliseconds between heartbeats. **Default** 30000
+- **reconnectAfterMs** - Optional list of milliseconds between reconnect attempts
+- **params** - Parameters sent to your Phoenix backend on connection.
 
 ### Import & Connection (HTML)
 
@@ -33,7 +40,7 @@ final socket = new PhoenixSocket("ws://localhost:4000/websocket/socket");
 import 'package:phoenix_wings/html.dart';
 
 
-final socket = new PhoenixSocket("ws://localhost:4000/websocket/socket", connectionProvider: PhoenixHtmlConnection.provider);
+final socket = new PhoenixSocket("ws://localhost:4000/socket/websocket", connectionProvider: PhoenixHtmlConnection.provider);
 
 ```
 
