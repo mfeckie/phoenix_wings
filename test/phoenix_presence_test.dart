@@ -284,6 +284,7 @@ class MockChannel implements PhoenixChannel {
       _bindings[event] = [];
     }
     _bindings[event].add(cb);
+    return _ref;
   }
 
   @override
