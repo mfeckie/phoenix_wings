@@ -60,7 +60,7 @@ class PhoenixSocket {
         host: decodedUri.host,
         path: decodedUri.path,
         port: decodedUri.port,
-        queryParameters: _options?.params);
+        queryParameters: _options.params);
   }
 
   Uri? get endpoint => _endpoint;
@@ -111,7 +111,7 @@ class PhoenixSocket {
       _onConnOpened();
 
       if (_conn != null) {
-        _conn
+        _conn!
           ..onClose(reconnect)
           ..onMessage(_onConnMessage)
           ..onError(_onConnectionError);
@@ -245,14 +245,9 @@ class PhoenixSocket {
 }
 
 class _StateChangeCallbacks {
-  late List<Function()> open;
-  List<Function(dynamic error)> close, error;
-  late List<Function(PhoenixMessage)> message;
+  List<Function()> open = [];
+  List<Function(dynamic error)> close = [], error = [];
+  List<Function(PhoenixMessage)> message = [];
 
-  _StateChangeCallbacks() {
-    this.open = [];
-    this.close = [];
-    this.error = [];
-    this.message = [];
-  }
+  _StateChangeCallbacks();
 }

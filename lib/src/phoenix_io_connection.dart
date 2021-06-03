@@ -41,7 +41,7 @@ class PhoenixIoConnection extends PhoenixConnection {
       try {
         _conn!.add(data);
       } catch (e) {
-        log(e.message);
+        log((e as dynamic).message);
       }
     }
   }

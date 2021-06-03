@@ -120,7 +120,7 @@ class RemoteMockServer {
   }
 
   shutdown() async {
-    await _channel.sink.add("shutdown");
+    _channel.sink.add("shutdown");
     await _channel.sink.close();
   }
 
