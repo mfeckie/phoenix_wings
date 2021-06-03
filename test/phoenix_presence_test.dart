@@ -116,8 +116,8 @@ void main() {
 
     test("removes presence when meta is empty and adds additional meta", () {
       final state = presences;
-      final joins = {'u1': {'metas': [{'id': 1, 'phx_ref': '1.2'}]}};
-      final leaves = {'u2': {'metas': [{'id': 2, 'phx_ref': '2'}]}};
+      final joins = {'u1': {'metas': <Map<String, dynamic>>[{'id': 1, 'phx_ref': '1.2'}]}};
+      final leaves = {'u2': {'metas': <Map<String, dynamic>>[{'id': 2, 'phx_ref': '2'}]}};
 
       final resultState = PhoenixPresence.syncDiff(state, {'joins': joins, 'leaves': leaves}, null, null);
 
