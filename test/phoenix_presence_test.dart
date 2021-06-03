@@ -8,10 +8,10 @@ import 'package:test/test.dart';
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_presence.dart';
 
-MockChannel _mockChannel;
+MockChannel? _mockChannel;
 
 void main() {
-  Map<String, Map<String, dynamic>> presences;
+  late Map<String, Map<String, dynamic>> presences;
 
   setUp(() {
     _mockChannel = MockChannel();
@@ -36,7 +36,7 @@ void main() {
   group("syncState", () {
     test("syncs empty state", () {
       final newState = {'u1': {'metas': [{'id': 1, 'phx_ref': '1'}]}};
-      var state = {};
+      Map<dynamic, dynamic>? state = {};
       final stateBefore = {};
 
       PhoenixPresence.syncState(state, newState, null, null);
@@ -186,13 +186,13 @@ void main() {
       final user2 = {'metas': [{'id': 2, 'phx_ref': '2'}]};
       final newState = {'u1': user1, 'u2': user2};
 
-      _mockChannel.triggerEvent("presence_state", newState);
+      _mockChannel!.triggerEvent("presence_state", newState);
       expect(phoenixPresence.list(by: listByFirst), equals([
         {'id': 1, 'phx_ref': '1'},
         {'id': 2, 'phx_ref': '2'}
       ]));
 
-      _mockChannel.triggerEvent("presence_diff", {'joins': {}, 'leaves': {'u1': user1}});
+      _mockChannel!.triggerEvent("presence_diff", {'joins': {}, 'leaves': {'u1': user1}});
       expect(phoenixPresence.list(by: listByFirst), equals([{'id': 2, 'phx_ref': '2'}]));
     });
 
@@ -224,12 +224,12 @@ void main() {
       final newState = {'u1': user1, 'u2': user2};
       final leaves = {'u2': user2};
 
-      _mockChannel.triggerEvent("presence_diff", {'joins': {}, 'leaves': leaves});
+      _mockChannel!.triggerEvent("presence_diff", {'joins': {}, 'leaves': leaves});
 
       expect(phoenixPresence.list(by: listByFirst), equals([]));
       expect(phoenixPresence.pendingDiffs, [{'joins': {}, 'leaves': leaves}]);
 
-      _mockChannel.triggerEvent("presence_state", newState);
+      _mockChannel!.triggerEvent("presence_state", newState);
       expect(onLeaves, equals([
         {'id': 'u2', 'current': {'metas': []}, 'leftPres': {'metas': [{'id': 2, 'phx_ref': '2'}]}}
       ]));
@@ -243,13 +243,13 @@ void main() {
 
       // disconnect and reconnect
       expect(phoenixPresence.inPendingSyncState, equals(false));
-      _mockChannel.simulateDisconnectAndReconnect();
+      _mockChannel!.simulateDisconnectAndReconnect();
       expect(phoenixPresence.inPendingSyncState, equals(true));
 
-      _mockChannel.triggerEvent("presence_diff", {'joins': {}, 'leaves': {'u1': user1}});
+      _mockChannel!.triggerEvent("presence_diff", {'joins': {}, 'leaves': {'u1': user1}});
       expect(phoenixPresence.list(by: listByFirst), equals([{'id': 1, 'phx_ref': '1'}]));
 
-      _mockChannel.triggerEvent("presence_state", {'u1': user1, 'u3': user3});
+      _mockChannel!.triggerEvent("presence_state", {'u1': user1, 'u3': user3});
       expect(phoenixPresence.list(by: listByFirst), equals([{'id': 3, 'phx_ref': '3'}]));
     });
 
@@ -258,9 +258,9 @@ void main() {
       final phoenixPresence = PhoenixPresence(_mockChannel, opts: {'events': customEvents});
 
       final user1 = {'metas': [{'id': 1, 'phx_ref': '1'}]};
-      _mockChannel.triggerEvent("the_state", {'user1': user1});
+      _mockChannel!.triggerEvent("the_state", {'user1': user1});
       expect(phoenixPresence.list(by: listByFirst), equals([{'id': 1, 'phx_ref': '1'}]));
-      _mockChannel.triggerEvent("the_diff", {'joins': {}, 'leaves': {'user1': user1}});
+      _mockChannel!.triggerEvent("the_diff", {'joins': {}, 'leaves': {'user1': user1}});
       expect(phoenixPresence.list(by: listByFirst), equals([]));
     });
   });
@@ -268,22 +268,22 @@ void main() {
 
 class MockChannel implements PhoenixChannel {
   int _ref = 1;
-  Map<String, List<Function>> _bindings = {};
+  Map<String?, List<Function>> _bindings = {};
 
   MockChannel();
 
   void triggerEvent(String event, Map<String, dynamic> payload) {
     if (_bindings.containsKey(event)) {
-      _bindings[event].forEach((cb) => cb(payload, null, null));
+      _bindings[event]!.forEach((cb) => cb(payload, null, null));
     }
   }
 
   @override
-  int on(String event, Function(Map<dynamic, dynamic>, String, String) cb) {
+  int on(String? event, Function(Map<dynamic, dynamic>, String, String) cb) {
     if (!_bindings.containsKey(event)) {
       _bindings[event] = [];
     }
-    _bindings[event].add(cb);
+    _bindings[event]!.add(cb);
     return _ref;
   }
 
@@ -295,10 +295,10 @@ class MockChannel implements PhoenixChannel {
   }
 
   @override
-  Timer rejoinTimer;
+  Timer? rejoinTimer;
 
   @override
-  PhoenixSocket socket;
+  PhoenixSocket? socket;
 
   @override
   bool get canPush => true;
@@ -324,15 +324,15 @@ class MockChannel implements PhoenixChannel {
   }
 
   @override
-  PhoenixPush join() {
+  PhoenixPush? join() {
     return null;
   }
 
   @override
-  PhoenixPush get joinPush => null;
+  PhoenixPush? get joinPush => null;
 
   @override
-  PhoenixPush leave() {
+  PhoenixPush? leave() {
     return null;
   }
 
@@ -356,26 +356,26 @@ class MockChannel implements PhoenixChannel {
   }
 
   @override
-  Map get params => null;
+  Map? get params => null;
 
   @override
-  PhoenixPush push({String event, Map payload}) {
+  PhoenixPush? push({String? event, Map? payload}) {
     return null;
   }
 
   @override
-  String replyEventName(ref) {
+  String? replyEventName(ref) {
     return null;
   }
 
   @override
-  int get timeout => null;
+  int? get timeout => null;
 
   @override
-  String get topic => null;
+  String? get topic => null;
 
   @override
-  trigger(String event, [Map payload, String ref, String joinRefParam]) {
+  trigger(String? event, [Map? payload, String? ref, String? joinRefParam]) {
     return null;
   }
 

@@ -7,7 +7,7 @@ class PhoenixSocketOptions {
     this.params,
   }) {
     params ??= {};
-    params['vsn'] = '2.0.0';
+    params!['vsn'] = '2.0.0';
   }
 
 
@@ -18,8 +18,8 @@ class PhoenixSocketOptions {
   int heartbeatIntervalMs;
 
   /// Optional list of milliseconds between reconnect attempts
-  List<int> reconnectAfterMs;
+  List<int>? reconnectAfterMs;
 
   /// Parameters sent to your Phoenix backend on connection.
-  Map<String, String> params;
+  Map<String, String>? params;
 }

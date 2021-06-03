@@ -7,8 +7,8 @@ import 'package:phoenix_wings/src/phoenix_connection.dart';
 /// PhoenixIoConnection handles the creation and use
 /// of the underlying websocket connection on browser platforms.
 class PhoenixIoConnection extends PhoenixConnection {
-  Future<WebSocket> _connFuture;
-  WebSocket _conn;
+  Future<WebSocket>? _connFuture;
+  WebSocket? _conn;
   final String _endpoint;
 
   // Use completer for close event because:
@@ -34,12 +34,12 @@ class PhoenixIoConnection extends PhoenixConnection {
     return this;
   }
 
-  void close([int code, String reason]) => _conn?.close(code, reason);
+  void close([int? code, String? reason]) => _conn?.close(code, reason);
 
   void send(String data) {
     if (isConnected) {
       try {
-        _conn.add(data);
+        _conn!.add(data);
       } catch (e) {
         log(e.message);
       }
@@ -53,17 +53,17 @@ class PhoenixIoConnection extends PhoenixConnection {
   }
 
   void onError(void callback(dynamic)) {
-    _conn.handleError(callback);
-    _conn.done.catchError(callback);
+    _conn!.handleError(callback);
+    _conn!.done.catchError(callback);
   }
 
-  String _messageToString(dynamic e) {
+  String? _messageToString(dynamic e) {
     // TODO: types are String or List<int>
-    return e as String;
+    return e as String?;
   }
 
-  void onMessage(void callback(String m)) {
-    _conn.listen((e) {
+  void onMessage(void callback(String? m)) {
+    _conn!.listen((e) {
       callback(_messageToString(e));
     }, onDone: () {
       _closed.complete();

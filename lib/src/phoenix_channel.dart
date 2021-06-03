@@ -26,13 +26,13 @@ class PhoenixChannel {
   PhoenixChannelState _state = PhoenixChannelState.closed;
   String _topic;
   Map _params = {};
-  PhoenixSocket socket;
+  PhoenixSocket? socket;
   List<_PhoenixChannelBinding> _bindings = [];
   List _pushBuffer = [];
   int _bindingRef = 0;
   var _joinedOnce = false;
-  PhoenixPush _joinPush;
-  Timer rejoinTimer;
+  PhoenixPush? _joinPush;
+  Timer? rejoinTimer;
 
   /// To create a channel use [PhoenixSocket.channel]
   ///
@@ -45,13 +45,13 @@ class PhoenixChannel {
     _joinPush =
         new PhoenixPush(this, PhoenixChannelEvents.join, _params, timeout);
 
-    _joinPush.receive("ok", (msg) {
+    _joinPush!.receive("ok", (msg) {
       _state = PhoenixChannelState.joined;
       _pushBuffer.forEach((pushEvent) => pushEvent.send());
       _pushBuffer = [];
     });
 
-    _joinPush.receive("timeout", (_) {
+    _joinPush!.receive("timeout", (_) {
       if (!isJoining) {
         return;
       }
@@ -59,14 +59,14 @@ class PhoenixChannel {
           new PhoenixPush(this, PhoenixChannelEvents.leave, {}, timeout);
       leavePush.send();
       _state = PhoenixChannelState.errored;
-      _joinPush.reset();
+      _joinPush!.reset();
       _startRejoinTimer();
     });
 
     onClose((a, b, c) {
       rejoinTimer?.cancel();
       _state = PhoenixChannelState.closed;
-      socket.remove(this);
+      socket!.remove(this);
     });
 
     on(PhoenixChannelEvents.reply, (payload, ref, _joinRef) {
@@ -84,34 +84,34 @@ class PhoenixChannel {
 
   _startRejoinTimer() {
     rejoinTimer =
-        new Timer.periodic(new Duration(milliseconds: timeout), (timer) {
+        new Timer.periodic(new Duration(milliseconds: timeout!), (timer) {
       if (_state == PhoenixChannelState.joined) {
         timer.cancel();
         rejoinTimer = null;
         return;
       }
 
-      if (socket.isConnected) {
+      if (socket!.isConnected) {
         _rejoin(timeout);
       }
     });
   }
 
-  bool get canPush => socket.isConnected && isJoined;
+  bool get canPush => socket!.isConnected && isJoined;
   bool get isClosed => _state == PhoenixChannelState.closed;
   bool get isErrored => _state == PhoenixChannelState.errored;
   bool get isJoined => _state == PhoenixChannelState.joined;
   bool get isJoining => _state == PhoenixChannelState.joining;
   bool get isLeaving => _state == PhoenixChannelState.leaving;
-  PhoenixPush get joinPush => _joinPush;
-  String get topic => _topic;
-  Map get params => _params;
+  PhoenixPush? get joinPush => _joinPush;
+  String? get topic => _topic;
+  Map? get params => _params;
 
-  String get joinRef => _joinPush.ref;
+  String? get joinRef => _joinPush!.ref;
 
-  int get timeout => socket.timeout;
+  int? get timeout => socket!.timeout;
 
-  String replyEventName(ref) => "chan_reply_$ref";
+  String? replyEventName(ref) => "chan_reply_$ref";
 
   /// @nodoc
   bool isMember(
@@ -132,7 +132,7 @@ class PhoenixChannel {
   ///
   /// If the channel join attempt fails, it will attempt to rejoin
   /// based on the timeout settings of the [PhoenixSocket]
-  PhoenixPush join() {
+  PhoenixPush? join() {
     if (_joinedOnce) {
       throw ("tried to join channel multiple times");
     } else {
@@ -145,7 +145,7 @@ class PhoenixChannel {
   /// Leaves the channel
   ///
   /// Notifies the server and triggers onCloseCallback(s)
-  PhoenixPush leave() {
+  PhoenixPush? leave() {
     _state = PhoenixChannelState.leaving;
 
     Function onCloseCallback = (_) {
@@ -156,7 +156,7 @@ class PhoenixChannel {
         new PhoenixPush(this, PhoenixChannelEvents.leave, {}, timeout);
 
     leavePush
-        .receive("ok", onCloseCallback)
+        .receive("ok", onCloseCallback as dynamic Function(Map<dynamic, dynamic>?))
         .receive("timeout", onCloseCallback);
 
     leavePush.send();
@@ -169,7 +169,7 @@ class PhoenixChannel {
   }
 
   /// Pushes a message to the server
-  PhoenixPush push({String event, Map payload}) {
+  PhoenixPush? push({String? event, Map? payload}) {
     if (!_joinedOnce) {
       throw ("Tried to push event before joining channel");
     }
@@ -192,11 +192,11 @@ class PhoenixChannel {
 
   _sendJoin(timeout) {
     _state = PhoenixChannelState.joining;
-    _joinPush.resend(timeout);
+    _joinPush!.resend(timeout);
   }
 
   /// @nodoc
-  trigger(String event, [Map payload, String ref, String joinRefParam]) {
+  trigger(String? event, [Map? payload, String? ref, String? joinRefParam]) {
     final handledPayload = this.onMessage(event, payload, ref);
     if (payload != null && handledPayload == null) {
       throw ("channel onMessage callback must return payload modified or unmodified");
@@ -211,7 +211,7 @@ class PhoenixChannel {
 
   /// Adds a callback which will be triggered on receiving an [event]
   /// with matching name
-  int on(String event, PhoenixMessageCallback callback) {
+  int on(String? event, PhoenixMessageCallback callback) {
     final ref = _bindingRef++;
     _bindings.add(new _PhoenixChannelBinding(event, ref, callback));
     return ref;
@@ -238,7 +238,7 @@ class PhoenixChannel {
 }
 
 class _PhoenixChannelBinding {
-  String event;
+  String? event;
   int ref;
   PhoenixMessageCallback callback;
   _PhoenixChannelBinding(this.event, this.ref, this.callback);
@@ -250,4 +250,4 @@ class _PhoenixChannelBinding {
 ///     final PhoenixMessageCallback myCallback = (payload, ref, joinRef) {
 ///       return payload;
 ///     }
-typedef void PhoenixMessageCallback(Map payload, String ref, String joinRef);
+typedef void PhoenixMessageCallback(Map? payload, String? ref, String? joinRef);

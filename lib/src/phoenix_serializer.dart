@@ -8,7 +8,7 @@ class PhoenixSerializer {
   }
 
   /// Converts a raw JSON String into a [PhoenixMessage]
-  static PhoenixMessage decode(String rawPayload) {
+  static PhoenixMessage decode(String? rawPayload) {
     return PhoenixMessage.decode(rawPayload);
   }
 }
