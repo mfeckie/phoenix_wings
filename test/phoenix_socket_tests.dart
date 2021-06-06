@@ -7,11 +7,11 @@ import 'package:phoenix_wings/phoenix_wings.dart';
 
 import 'mock_server.dart';
 
-typedef PhoenixSocket SocketFactory(String e, PhoenixSocketOptions so);
+typedef PhoenixSocket SocketFactory(String e, PhoenixSocketOptions? so);
 
 void testPhoenixSocket(SocketFactory makeSocket) {
-  RemoteMockServer server;
-  PhoenixSocket socket;
+  late RemoteMockServer server;
+  late PhoenixSocket socket;
   setUp(() async {
     server = new RemoteMockServer.hybrid();
     await server.waitForServer();
@@ -31,7 +31,7 @@ void testPhoenixSocket(SocketFactory makeSocket) {
     final options = new PhoenixSocketOptions();
     options.params = {"stuff": "things"};
     final socket = makeSocket(endpoint, options);
-    expect(socket.endpoint.queryParameters, options.params);
+    expect(socket.endpoint!.queryParameters, options.params);
   });
 
   test("Connects idempotently", () async {
@@ -77,7 +77,7 @@ void testPhoenixSocket(SocketFactory makeSocket) {
     test("Triggers callbacks on message", () async {
       final message = PhoenixSerializer
           .encode(new PhoenixMessage(null, "ref", "topic", "event", {}));
-      PhoenixMessage receivedMessage;
+      late PhoenixMessage receivedMessage;
       socket.onMessage((msg) => receivedMessage = msg);
 
       await socket.connect();

@@ -8,11 +8,11 @@ import 'package:test/test.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
 
 class MockServer {
-  HttpServer _server;
-  WebSocket _socket;
+  HttpServer? _server;
+  WebSocket? _socket;
   var heartbeat = 0;
   int port;
-  String heartbeatMessageReceived;
+  String? heartbeatMessageReceived;
 
   MockServer(this.port);
 
@@ -22,10 +22,10 @@ class MockServer {
   }
 
   _serve() async {
-    await for (HttpRequest req in _server) {
+    await for (HttpRequest req in _server!) {
       if (req.uri.path == '/socket/websocket') {
         _socket = await WebSocketTransformer.upgrade(req);
-        _socket.listen((msg) {
+        _socket!.listen((msg) {
           final message = PhoenixSerializer.decode(msg);
           if (message.event == 'heartbeat') {
             heartbeatMessageReceived = msg;
@@ -67,7 +67,7 @@ class MockServer {
     if (_socket?.readyState != WebSocket.open) {
       return;
     }
-    _socket.add(msg);
+    _socket!.add(msg);
   }
 
   testDisconnect() async {
@@ -75,7 +75,7 @@ class MockServer {
   }
 
   shutdown() async {
-    await _server.close();
+    await _server!.close();
     _server = null;
   }
 }
@@ -99,10 +99,10 @@ class RemoteMockServer {
   RemoteMockServer.hybrid()
       : this.forChannel(spawnHybridUri("mock_server.dart"));
 
-  Future<int> get heartbeat async {
+  Future<int?> get heartbeat async {
     final response = _listResponse("heartbeat");
     _sendCommand("get_heartbeat");
-    return (await response)[1] as int;
+    return (await response)[1] as int?;
   }
 
   Future<PhoenixMessage> get heartbeatMessageReceived async {
@@ -120,7 +120,7 @@ class RemoteMockServer {
   }
 
   shutdown() async {
-    await _channel.sink.add("shutdown");
+    _channel.sink.add("shutdown");
     await _channel.sink.close();
   }
 

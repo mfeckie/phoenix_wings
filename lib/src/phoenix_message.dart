@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 class PhoenixMessage {
-  String joinRef, ref, topic, event;
-  Map payload;
+  String? joinRef, ref, topic, event;
+  Map? payload;
 
   PhoenixMessage(this.joinRef, this.ref, this.topic, this.event, this.payload);
 
@@ -18,7 +18,7 @@ class PhoenixMessage {
   }
 
   /// Constructor for a hearbeat message.
-  PhoenixMessage.heartbeat(String pendingHeartbeatRef) {
+  PhoenixMessage.heartbeat(String? pendingHeartbeatRef) {
     ref = pendingHeartbeatRef;
     payload = {};
     event = "heartbeat";

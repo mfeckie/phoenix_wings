@@ -5,22 +5,22 @@ import 'package:phoenix_wings/src/phoenix_message.dart';
 
 class PhoenixPush {
   bool sent = false;
-  Map receivedResp;
-  int timeout;
+  Map? receivedResp;
+  int? timeout;
   List recHooks = [];
-  Map payload = {};
-  PhoenixChannel channel;
-  String event;
-  String ref;
-  String refEvent;
+  Map? payload = {};
+  PhoenixChannel? channel;
+  String? event;
+  String? ref;
+  String? refEvent;
 
-  Timer timeoutTimer;
+  Timer? timeoutTimer;
 
   PhoenixPush(this.channel, this.event, this.payload, this.timeout) {
-    ref = this.channel.socket.makeRef();
+    ref = this.channel!.socket!.makeRef();
   }
 
-  PhoenixPush receive(String status, Function(Map response) callback) {
+  PhoenixPush receive(String status, Function(Map? response) callback) {
     if (hasReceived(status)) {
       callback(receivedResp);
     }
@@ -30,16 +30,16 @@ class PhoenixPush {
   }
 
   bool hasReceived(status) {
-    return receivedResp != null && receivedResp["status"] == status;
+    return receivedResp != null && receivedResp!["status"] == status;
   }
 
-  matchReceive(Map payload) {
+  matchReceive(Map? payload) {
     recHooks
-        .where((hook) => hook.status == payload["status"])
-        .forEach((hook) => hook.callback(payload["response"]));
+        .where((hook) => hook.status == payload!["status"])
+        .forEach((hook) => hook.callback(payload!["response"]));
   }
 
-  resend(int timeout) {
+  resend(int? timeout) {
     timeout = timeout;
     reset();
     send();
@@ -49,7 +49,7 @@ class PhoenixPush {
     if (refEvent == null) {
       return;
     }
-    channel.off(refEvent);
+    channel!.off(refEvent);
   }
 
   reset() {
@@ -62,24 +62,24 @@ class PhoenixPush {
 
   send() {
     startTimeout();
-    refEvent = channel.replyEventName(ref);
+    refEvent = channel!.replyEventName(ref);
     sent = true;
-    channel.socket.push(new PhoenixMessage(
-        channel.joinRef, ref, channel.topic, event, payload));
+    channel!.socket!.push(new PhoenixMessage(
+        channel!.joinRef, ref, channel!.topic, event, payload));
   }
 
   startTimeout() {
     cancelTimeout();
-    ref = channel.socket.makeRef();
-    refEvent = channel.replyEventName(ref);
-    channel.on(refEvent, (payload, _a, _b) {
+    ref = channel!.socket!.makeRef();
+    refEvent = channel!.replyEventName(ref);
+    channel!.on(refEvent, (payload, _a, _b) {
       cancelRefEvent();
       cancelTimeout();
       receivedResp = payload;
       matchReceive(payload);
     });
 
-    timeoutTimer = new Timer(new Duration(milliseconds: timeout), () {
+    timeoutTimer = new Timer(new Duration(milliseconds: timeout!), () {
       trigger("timeout", {});
     });
   }
@@ -90,7 +90,7 @@ class PhoenixPush {
   }
 
   trigger(status, response) {
-    channel.trigger(refEvent, {"status": status, "response": response});
+    channel!.trigger(refEvent, {"status": status, "response": response});
   }
 }
 

@@ -10,7 +10,7 @@ import 'package:phoenix_wings/src/phoenix_socket_options.dart';
 import 'package:phoenix_wings/src/phoenix_io_connection.dart';
 
 class PhoenixSocket {
-  Uri _endpoint;
+  Uri? _endpoint;
   _StateChangeCallbacks _stateChangeCallbacks = new _StateChangeCallbacks();
 
   List<int> reconnectAfterMs = const [1000, 2000, 5000, 10000];
@@ -21,15 +21,15 @@ class PhoenixSocket {
 
   var _encode = PhoenixSerializer.encode;
   var _decode = PhoenixSerializer.decode;
-  Timer _heartbeatTimer;
-  String _pendingHeartbeatRef;
+  Timer? _heartbeatTimer;
+  String? _pendingHeartbeatRef;
   List<Function()> _sendBuffer = [];
   List<PhoenixChannel> channels = [];
 
   bool _reconnect = false;
 
-  PhoenixConnection _conn;
-  PhoenixConnection get conn => _conn;
+  PhoenixConnection? _conn;
+  PhoenixConnection? get conn => _conn;
 
   int timeout = 10000;
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
@@ -60,10 +60,10 @@ class PhoenixSocket {
         host: decodedUri.host,
         path: decodedUri.path,
         port: decodedUri.port,
-        queryParameters: _options?.params);
+        queryParameters: _options.params);
   }
 
-  Uri get endpoint => _endpoint;
+  Uri? get endpoint => _endpoint;
   int get ref => _ref;
   bool get isConnected => _conn?.isConnected ?? false;
   int get connectionState => _conn?.readyState ?? 3; // WebSocket CLOSED
@@ -95,7 +95,7 @@ class PhoenixSocket {
     for (int tries = 0; _conn == null && _connecting; tries += 1) {
       try {
         _conn = _connectionProvider(_endpoint.toString());
-        await _conn.waitForConnection();
+        await _conn!.waitForConnection();
       } catch (reason) {
         _conn = null;
         print(
@@ -111,7 +111,7 @@ class PhoenixSocket {
       _onConnOpened();
 
       if (_conn != null) {
-        _conn
+        _conn!
           ..onClose(reconnect)
           ..onMessage(_onConnMessage)
           ..onError(_onConnectionError);
@@ -153,7 +153,7 @@ class PhoenixSocket {
     _stateChangeCallbacks.error.forEach((cb) => cb(error));
   }
 
-  void _onConnMessage(String rawJSON) {
+  void _onConnMessage(String? rawJSON) {
     final message = this._decode(rawJSON);
 
     if (_pendingHeartbeatRef != null && message.ref == _pendingHeartbeatRef) {
@@ -189,7 +189,7 @@ class PhoenixSocket {
       return;
     }
 
-    _conn.close(code);
+    _conn!.close(code);
     _conn = null;
   }
 
@@ -210,13 +210,13 @@ class PhoenixSocket {
 
   /// @nodoc
   void sendHeartbeat(Timer timer) {
-    if (_conn == null || !_conn.isConnected) {
+    if (_conn == null || !_conn!.isConnected) {
       return;
     }
 
     if (_pendingHeartbeatRef != null) {
       _pendingHeartbeatRef = null;
-      _conn.closeNormal("Heartbeat timeout");
+      _conn!.closeNormal("Heartbeat timeout");
       return;
     }
     _pendingHeartbeatRef = makeRef();
@@ -228,7 +228,7 @@ class PhoenixSocket {
   void push(PhoenixMessage msg) {
     final callback = () {
       final encoded = _encode(msg);
-      _conn.send(encoded);
+      _conn!.send(encoded);
     };
 
     if (isConnected) {
@@ -245,14 +245,9 @@ class PhoenixSocket {
 }
 
 class _StateChangeCallbacks {
-  List<Function()> open;
-  List<Function(dynamic error)> close, error;
-  List<Function(PhoenixMessage)> message;
+  List<Function()> open = [];
+  List<Function(dynamic error)> close = [], error = [];
+  List<Function(PhoenixMessage)> message = [];
 
-  _StateChangeCallbacks() {
-    this.open = [];
-    this.close = [];
-    this.error = [];
-    this.message = [];
-  }
+  _StateChangeCallbacks();
 }

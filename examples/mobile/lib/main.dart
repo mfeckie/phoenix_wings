@@ -19,8 +19,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
+  MyHomePage({Key? key, this.title}) : super(key: key);
+  final String? title;
   // if you want to run both phoenix and flutter [with emulator] in the same
   // machine, point to your local machine [not localhost], as described in 
   // the README.md file.
@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  PhoenixChannel _channel;
+  late PhoenixChannel _channel;
   List<ChatMessage> messages = [];
   final TextEditingController _textController = TextEditingController();
 
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title!),
       ),
       body: Column(
         children: <Widget>[
@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: <Widget>[
                     ListTile(
                         leading: Icon(Icons.message),
-                        title: Text(message.text),
+                        title: Text(message.text!),
                         subtitle: Text(message.time)),
                   ],
                 ));
@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
  */
 
 class ChatMessage {
-  final String text;
+  final String? text;
   final DateTime received = DateTime.now();
   ChatMessage({this.text});
 

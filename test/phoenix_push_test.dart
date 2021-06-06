@@ -2,24 +2,31 @@
 
 import 'dart:async';
 
+import 'package:mockito/annotations.dart';
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_push.dart';
 import 'package:phoenix_wings/src/phoenix_socket.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
+import 'phoenix_push_test.mocks.dart';
 
-class MockChannel extends Mock implements PhoenixChannel {}
-
-class MockSocket extends Mock implements PhoenixSocket {}
-
-var socket, channel;
-
+@GenerateMocks([], customMocks: [
+  MockSpec<PhoenixChannel>(
+      as: #MockPhoenixChannel, returnNullOnMissingStub: true),
+  MockSpec<PhoenixSocket>(
+      as: #MockPhoenixSocket, returnNullOnMissingStub: true),
+])
 void main() {
+  late MockPhoenixSocket socket;
+  late MockPhoenixChannel channel;
+
   setUp(() {
-    socket = new MockSocket();
-    channel = new MockChannel();
+    socket = MockPhoenixSocket();
+    channel = MockPhoenixChannel();
     when(channel.socket).thenReturn(socket);
+    when(channel.on(any, any)).thenReturn(0);
     when(socket.makeRef()).thenReturn("1");
+    when(socket.timeout).thenReturn(0);
   });
 
   test("Builds a new Push", () {
@@ -48,7 +55,7 @@ void main() {
     final push = new PhoenixPush(channel, "event", {}, 100);
 
     var callbackExecuted = false;
-    Map payload;
+    Map? payload;
     var notReceiveExecuted = false;
 
     push.receive("ok", (resp) {

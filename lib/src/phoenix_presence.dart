@@ -2,40 +2,40 @@ import 'dart:convert';
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 
 class PhoenixPresence {
-  PhoenixChannel channel;
-  Map<String, dynamic> opts;
-  PresenceEvents events;
-  Map<String, Map<String, dynamic>> state;
+  PhoenixChannel? channel;
+  Map<String, dynamic>? opts;
+  late PresenceEvents events;
+  Map<String, Map<String, dynamic>>? state;
   List pendingDiffs = [];
-  String joinRef;
-  _PresenceCallers caller;
+  String? joinRef;
+  late _PresenceCallers caller;
 
   static void _noop(key, currentPresence, newPresence) {
   }
 
   PhoenixPresence(this.channel, {this.opts}) {
     opts ??= {};
-    events = opts['events'] ?? PresenceEvents(PhoenixPresenceEvents.presenceState, PhoenixPresenceEvents.presenceDiff);
+    events = opts!['events'] ?? PresenceEvents(PhoenixPresenceEvents.presenceState, PhoenixPresenceEvents.presenceDiff);
     state = {};
     joinRef = null;
         caller = _PresenceCallers(onJoin: _noop, onLeave: _noop, onSync: () {});
 
-    this.channel.on(events.state, (newState, _ref, _joinRef) {
-      this.joinRef = this.channel.joinRef;
+    this.channel!.on(events.state, (newState, _ref, _joinRef) {
+      this.joinRef = this.channel!.joinRef;
       this.state = Map<String, Map<String, dynamic>>.from(syncState(this.state, newState, caller.onJoin, caller.onLeave));
 
       this.pendingDiffs.forEach((diff) => this.state = Map<String, Map<String, dynamic>>.from(syncDiff(this.state, diff, caller.onJoin, caller.onLeave)));
 
       this.pendingDiffs = [];
-      caller.onSync();
+      caller.onSync!();
     });
 
-    this.channel.on(events.diff, (diff, _ref, _joinRef) {
+    this.channel!.on(events.diff, (diff, _ref, _joinRef) {
       if (this.inPendingSyncState) {
         this.pendingDiffs.add(diff);
       } else {
         this.state = Map<String, Map<String, dynamic>>.from(syncDiff(this.state, diff, caller.onJoin, caller.onLeave));
-        caller.onSync();
+        caller.onSync!();
       }
     });
   }
@@ -46,9 +46,9 @@ class PhoenixPresence {
 
   onSync(Function() callback) => this.caller.onSync = callback;
 
-  list({Function by = null}) => _list(this.state, by);
+  list({Function? by = null}) => _list(this.state, by);
 
-  get inPendingSyncState => this.joinRef == null || (this.joinRef != this.channel.joinRef);
+  get inPendingSyncState => this.joinRef == null || (this.joinRef != this.channel!.joinRef);
 
   static syncState(currentState, newState, onJoinCallback, onLeaveCallback){
     var state = clone(currentState);
@@ -164,8 +164,8 @@ class PresenceEvents {
 }
 
 class _PresenceCallers {
-  Function(dynamic key, dynamic currentPresence, dynamic newPresence) onJoin;
-  Function(dynamic key, dynamic currentPresence, dynamic newPresence) onLeave;
-  Function() onSync;
+  Function(dynamic key, dynamic currentPresence, dynamic newPresence)? onJoin;
+  Function(dynamic key, dynamic currentPresence, dynamic newPresence)? onLeave;
+  Function()? onSync;
   _PresenceCallers({this.onJoin, this.onLeave, this.onSync});
 }
