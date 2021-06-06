@@ -1,3 +1,6 @@
+## [1.0.0]
+* Migrate to null safe [@macoshita](https://github.com/mfeckie/phoenix_wings/pull/28)
+
 ## [0.2.2]
 * Improve error handling for StreamSink
 * Update README thanks [@leksim](https://github.com/mfeckie/phoenix_wings/pull/18)
