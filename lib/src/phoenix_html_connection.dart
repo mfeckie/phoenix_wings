@@ -8,11 +8,11 @@ import 'package:phoenix_wings/src/phoenix_connection.dart';
 class PhoenixHtmlConnection extends PhoenixConnection {
   final String _endpoint;
 
-  WebSocket _conn;
-  Future _opened;
+  late WebSocket _conn;
+  late Future _opened;
 
   bool get isConnected => _conn.readyState == WebSocket.OPEN;
-  int get readyState => _conn.readyState ?? WebSocket.CLOSED;
+  int get readyState => _conn.readyState;
 
   static PhoenixConnection provider(String endpoint) {
     return new PhoenixHtmlConnection(endpoint);
@@ -34,7 +34,7 @@ class PhoenixHtmlConnection extends PhoenixConnection {
     return this;
   }
 
-  void close([int code, String reason]) => _conn.close(code, reason);
+  void close([int? code, String? reason]) => _conn.close(code, reason);
   void send(String data) => _conn.sendString(data);
 
   void onClose(void callback()) => _conn.onClose.listen((e) {
