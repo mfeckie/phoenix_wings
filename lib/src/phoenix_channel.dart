@@ -115,7 +115,7 @@ class PhoenixChannel {
 
   /// @nodoc
   bool isMember(
-      String topicParam, String event, Map payload, String joinRefParam) {
+      String topicParam, String event, Map payload, String? joinRefParam) {
     if (_topic != topicParam) {
       return false;
     }

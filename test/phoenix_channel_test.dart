@@ -68,31 +68,37 @@ void main() {
     });
   });
 
-  test("parses raw message and triggers channel event", () async {
-    final message = PhoenixSerializer.encode(new PhoenixMessage(
-        "1", "ref", "topic", "event", {"payload": "payload"}));
+  [
+    PhoenixMessage("1", "ref", "topic", "event", {"payload": "payload"}),
+    PhoenixMessage(null, "ref", "topic", "event", {"payload": "payload"}),
+  ].forEach((msg) {
+    test(
+        "parses raw message and triggers channel event: joinRef is ${msg.joinRef}",
+        () async {
+      final message = PhoenixSerializer.encode(msg);
 
-    await socket!.connect();
-    final targetChannel = socket!.channel("topic");
-    var callbackInvoked = false;
-    var calledWithPayload;
-    targetChannel.on("event", (payload, ref, joinRef) {
-      callbackInvoked = true;
-      calledWithPayload = payload;
+      await socket!.connect();
+      final targetChannel = socket!.channel("topic");
+      var callbackInvoked = false;
+      var calledWithPayload;
+      targetChannel.on("event", (payload, ref, joinRef) {
+        callbackInvoked = true;
+        calledWithPayload = payload;
+      });
+
+      final otherChannel = socket!.channel("off-topic");
+      var otherCallbackInvoked = false;
+      otherChannel.on("event", (event, payload, ref) {
+        otherCallbackInvoked = true;
+      });
+
+      server.sendMessage(message);
+
+      await new Future<Null>.delayed(new Duration(milliseconds: 100));
+
+      expect(callbackInvoked, true);
+      expect(calledWithPayload, msg.payload);
+      expect(otherCallbackInvoked, false);
     });
-
-    final otherChannel = socket!.channel("off-topic");
-    var otherCallbackInvoked = false;
-    otherChannel.on("event", (event, payload, ref) {
-      otherCallbackInvoked = true;
-    });
-
-    server.sendMessage(message);
-
-    await new Future<Null>.delayed(new Duration(milliseconds: 100));
-
-    expect(callbackInvoked, true);
-    expect(calledWithPayload, {'payload': 'payload'});
-    expect(otherCallbackInvoked, false);
   });
 }

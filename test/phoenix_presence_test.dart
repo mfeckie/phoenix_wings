@@ -319,7 +319,7 @@ class MockChannel implements PhoenixChannel {
   bool get isLeaving => false;
 
   @override
-  bool isMember(String topicParam, String event, Map payload, String joinRefParam) {
+  bool isMember(String topicParam, String event, Map payload, String? joinRefParam) {
     return true;
   }
 
