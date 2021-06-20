@@ -1,3 +1,6 @@
+## [1.0.1]
+ * Fix unhandled exception when joinRef is null [@macoshita](https://github.com/mfeckie/phoenix_wings/pull/31)
+
 ## [1.0.0]
 * Migrate to null safe [@macoshita](https://github.com/mfeckie/phoenix_wings/pull/28)
 
