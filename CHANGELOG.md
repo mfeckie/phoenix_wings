@@ -1,3 +1,5 @@
+## [1.0.2]
+ * Fix null safety on web platform [@pichoemr](https://github.com/mfeckie/phoenix_wings/pull/30)
 ## [1.0.1]
  * Fix unhandled exception when joinRef is null [@macoshita](https://github.com/mfeckie/phoenix_wings/pull/31)
 
