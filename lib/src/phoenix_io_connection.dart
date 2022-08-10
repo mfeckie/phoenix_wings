@@ -63,7 +63,7 @@ class PhoenixIoConnection extends PhoenixConnection {
   }
 
   void onMessage(void callback(String? m)) {
-    _conn?.listen((e) {
+    _conn?.asBroadcastStream().listen((e) {
       callback(_messageToString(e));
     }, onDone: () {
       _closed.complete();
