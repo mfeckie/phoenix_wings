@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:phoenix_wings/src/phoenix_channel.dart';
+import 'package:phoenix_wings/html.dart';
 import 'package:phoenix_wings/src/phoenix_connection.dart';
-import 'package:phoenix_wings/src/phoenix_message.dart';
-import 'package:phoenix_wings/src/phoenix_serializer.dart';
-import 'package:phoenix_wings/src/phoenix_socket_options.dart';
-
 import 'package:phoenix_wings/src/phoenix_io_connection.dart';
+
+const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');
 
 class PhoenixSocket {
   Uri? _endpoint;
@@ -33,14 +31,15 @@ class PhoenixSocket {
 
   int timeout = 10000;
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
-  PhoenixConnectionProvider _connectionProvider = PhoenixIoConnection.provider;
+  PhoenixConnectionProvider _connectionProvider =
+      (kIsWeb) ? PhoenixHtmlConnection.provider : PhoenixIoConnection.provider;
 
   /// Creates an instance of PhoenixSocket
   ///
   /// endpoint is the full url to which you wish to connect e.g. `ws://localhost:4000/websocket/socket`
   PhoenixSocket(String endpoint,
-      {socketOptions: PhoenixSocketOptions,
-      connectionProvider: PhoenixConnectionProvider}) {
+      {socketOptions = PhoenixSocketOptions,
+      connectionProvider = PhoenixConnectionProvider}) {
     if (socketOptions is PhoenixSocketOptions) {
       _options = socketOptions;
     }
