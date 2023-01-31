@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:phoenix_wings/html.dart';
+import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_connection.dart';
-import 'package:phoenix_wings/src/phoenix_io_connection.dart';
+import 'package:phoenix_wings/src/phoenix_io_connection.dart'
+    if (dart.library.html) 'package:phoenix_wings/src/phoenix_html_connection.dart'
+    as connection;
+import 'package:phoenix_wings/src/phoenix_message.dart';
+import 'package:phoenix_wings/src/phoenix_serializer.dart';
+import 'package:phoenix_wings/src/phoenix_socket_options.dart';
 
 const bool kIsWeb = bool.fromEnvironment('dart.library.js_util');
 
@@ -32,7 +37,7 @@ class PhoenixSocket {
   int timeout = 10000;
   PhoenixSocketOptions _options = new PhoenixSocketOptions();
   PhoenixConnectionProvider _connectionProvider =
-      (kIsWeb) ? PhoenixHtmlConnection.provider : PhoenixIoConnection.provider;
+      connection.PhoenixConnectionImpl.provider;
 
   /// Creates an instance of PhoenixSocket
   ///
