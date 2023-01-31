@@ -1,11 +1,11 @@
-import 'dart:html';
 import 'dart:async';
+import 'dart:html';
 
 import 'package:phoenix_wings/src/phoenix_connection.dart';
 
 /// PhoenixHtmlConnection handles the creation and use
 /// of the underlying websocket connection on browser platforms.
-class PhoenixHtmlConnection extends PhoenixConnection {
+class PhoenixConnectionImpl extends PhoenixConnection {
   final String _endpoint;
 
   late WebSocket _conn;
@@ -15,10 +15,10 @@ class PhoenixHtmlConnection extends PhoenixConnection {
   int get readyState => _conn.readyState;
 
   static PhoenixConnection provider(String endpoint) {
-    return new PhoenixHtmlConnection(endpoint);
+    return new PhoenixConnectionImpl(endpoint);
   }
 
-  PhoenixHtmlConnection(this._endpoint) {
+  PhoenixConnectionImpl(this._endpoint) {
     _conn = new WebSocket(_endpoint);
     _opened = _conn.onOpen.first;
   }

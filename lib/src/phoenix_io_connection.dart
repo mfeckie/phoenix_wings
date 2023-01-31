@@ -1,12 +1,12 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:async';
 
 import 'package:phoenix_wings/src/phoenix_connection.dart';
 
 /// PhoenixIoConnection handles the creation and use
 /// of the underlying websocket connection on browser platforms.
-class PhoenixIoConnection extends PhoenixConnection {
+class PhoenixConnectionImpl extends PhoenixConnection {
   Future<WebSocket>? _connFuture;
   WebSocket? _conn;
   final String _endpoint;
@@ -20,10 +20,10 @@ class PhoenixIoConnection extends PhoenixConnection {
   int get readyState => _conn?.readyState ?? WebSocket.closed;
 
   static PhoenixConnection provider(String endpoint) {
-    return new PhoenixIoConnection(endpoint);
+    return new PhoenixConnectionImpl(endpoint);
   }
 
-  PhoenixIoConnection(this._endpoint);
+  PhoenixConnectionImpl(this._endpoint);
 
   // waitForConnection is idempotent, it can be called many
   // times before or after the connection is established
