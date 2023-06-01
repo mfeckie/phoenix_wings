@@ -105,10 +105,10 @@ class PhoenixPresence {
       state[key] = newPresence;
       if (currentPresence != null) {
         var joinedRefs = state[key]['metas']
-          .where((Map<String, dynamic> meta) => meta.containsKey('phx_ref'))
-          .map((Map<String, dynamic> meta) => meta['phx_ref']);
+          .where((meta) => meta.containsKey('phx_ref') as bool)
+          .map((meta) => meta['phx_ref']);
 
-        var curMetas = List<Map<String, dynamic>>.from(currentPresence['metas'].where((meta) => !joinedRefs.contains(meta['phx_ref'])));
+        var curMetas = List.from(currentPresence['metas'].where((meta) => !joinedRefs.contains(meta['phx_ref'])));
         state[key]['metas'].insertAll(0, curMetas);
       } 
       onJoinCallback(key, currentPresence, newPresence);
